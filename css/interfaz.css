@@ -1,0 +1,82 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #162144, #1e3c72);
+    color: #fff;
+    line-height: 1.6;
+  }
+  
+  header {
+    padding: 2rem;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+  
+  header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  main {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: auto;
+  }
+  
+  .intro {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  
+  .btn {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #ff9800;
+    color: #000;
+    font-weight: bold;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+  }
+  
+  .btn:hover {
+    background-color: #e68900;
+  }
+  
+  .features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 1.5rem;
+  }
+  
+  .feature {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 10px;
+    flex: 0 0 calc(25% - 1.5rem); /* Ensure 4 items fit in a row */
+    text-align: center;
+    max-width: calc(25% - 1.5rem); /* Prevent items from exceeding their allocated space */
+  }
+  
+  .features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between; /* Align items evenly */
+    gap: 1.5rem;
+  }
+  
+  footer {
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    margin-top: 3rem;
+  }
+  

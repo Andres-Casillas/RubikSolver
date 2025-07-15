@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resolver Cubo 3x3</title>
+  <link rel="stylesheet" href="css/resolver.css" />
+</head>
+<body>
+  <h1>Resolver Cubo 3x3</h1>
+
+  <div class="resolver-container">
+    <div class="camara-placeholder">
+      <video id="videoInput" style="display: none;"></video>
+      <canvas id="canvasOutput" style="width: 95%;"></canvas>
+    </div>
+
+    <div class="modelo3d-placeholder">
+      <p>Modelo 3D del cubo (futuro)</p>
+    </div>
+  </div>
+
+  <div class="botones">
+    <a href="Manual.html" class="boton">Agregar manualmente</a>
+    <a href="Menu.html" class="boton secundario">Regresar</a>
+    <a href="Entrenamiento.html" class="boton secundario">Entrenamiento</a>
+  </div>
+
+  
+  <!-- Carga OpenCV.js desde CDN oficial -->
+  <script async src="https://docs.opencv.org/4.10.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+  <script defer src="/java/script.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,154 @@
+/* Reset básico y estilos generales */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0f172a; /* Fondo azul oscuro */
+  color: #f1f5f9;
+  line-height: 1.6;
+}
+
+/* Encabezado */
+header {
+  background-color: #1e293b;
+  padding: 1rem 1.5rem;
+  font-size: 1.3rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Botón de volver */
+button.volver {
+  background: none;
+  border: none;
+  color: #60a5fa;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+button.volver:hover {
+  color: #3b82f6;
+}
+
+/* Contenido principal */
+main {
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Sección del selector de casos */
+.selector {
+  margin-bottom: 2rem;
+}
+.selector label {
+  margin-right: 1rem;
+  font-weight: bold;
+  font-size: 1rem;
+}
+.selector select {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #334155;
+  background-color: #1e293b;
+  color: #f1f5f9;
+  font-size: 1rem;
+  transition: border 0.2s;
+}
+.selector select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* Estilos para cada caso */
+.caso {
+  background-color: #1e293b;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+  margin-bottom: 2rem;
+  transition: opacity 0.3s ease;
+}
+
+.caso h2 {
+  color: #93c5fd;
+  margin-bottom: 1rem;
+}
+
+/* Espacio para modelo 3D */
+.placeholder-modelo {
+  background-color: #0f172a;
+  border: 2px dashed #3b82f6;
+  border-radius: 1rem;
+  padding: 3rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* Área de texto para soluciones */
+textarea {
+  width: 100%;
+  height: 120px;
+  background-color: #0f172a;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-size: 1rem;
+  resize: vertical;
+  transition: border 0.2s ease;
+}
+textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* Navegación entre casos */
+.navegacion {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.navegacion button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s;
+}
+.navegacion button:hover {
+  background-color: #2563eb;
+}
+.navegacion button:active {
+  transform: scale(0.98);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .navegacion {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  header {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+}

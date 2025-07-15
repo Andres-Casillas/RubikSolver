@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cube Solver - Menú</title>
+  <link rel="stylesheet" href="css/Menu.css" />
+</head>
+<body>
+  <h1>Selecciona un cubo para resolver</h1>
+
+  <div class="menu" id="menu">
+    <!-- Las tarjetas se insertan con JavaScript -->
+  </div>
+
+  <script>
+    const cubos = [
+      {
+        nombre: "Cubo 3x3",
+        tipo: "3x3",
+        imagen: "imagenes/3x3.png"
+      },
+      {
+        nombre: "Cubo 2x2",
+        tipo: "2x2",
+        imagen: "imagenes/2x2.png"
+      },
+      {
+        nombre: "Cubo 4x4",
+        tipo: "4x4",
+        imagen: "imagenes/4x4.png"
+      },
+      {
+        nombre: "Pyraminx",
+        tipo: "pyraminx",
+        imagen: "imagenes/piramide.png"
+      }
+    ];
+
+    const menu = document.getElementById("menu");
+
+    cubos.forEach((cubo) => {
+      const card = document.createElement("a");
+      card.className = "card";
+      card.href = `resolver.html?tipo=${cubo.tipo}`;
+      card.innerHTML = `
+        <img src="${cubo.imagen}" alt="${cubo.nombre}" />
+        <span>${cubo.nombre}</span>
+      `;
+      menu.appendChild(card);
+    });
+  </script>
+</body>
+</html>

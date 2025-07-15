@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agregar manualmente - Cubo 3x3</title>
+  <link rel="stylesheet" href="css/Manual.css" />
+</head>
+<body>
+  <!-- BOTÓN DE REGRESO -->
+  <div class="regresar-contenedor">
+    <a href="resolver.html" class="btn-regresar">← Regresar</a>
+  </div>
+
+  <h1>Describirlo<br>para resolverlo</h1>
+
+  <div class="cubo-panel">
+    <div class="header">
+      <span>Cubo 3x3</span>
+      <button class="reiniciar" onclick="reiniciarCubo()">Reiniciar</button>
+    </div>
+
+    <div class="cubo-grid" id="cuboGrid">
+      <!-- 9 casillas -->
+      <div class="casilla"></div>
+      <div class="casilla"></div>
+      <div class="casilla"></div>
+      <div class="casilla"></div>
+      <div class="casilla"></div>
+      <div class="casilla"></div>
+      <div class="casilla"></div>
+      <div class="casilla"></div>
+      <div class="casilla"></div>
+    </div>
+
+    <div class="color-selector">
+      <div class="color" style="background:#ffffff;" onclick="seleccionarColor('#ffffff')"></div>
+      <div class="color" style="background:#00a000;" onclick="seleccionarColor('#00a000')"></div>
+      <div class="color" style="background:#ff0000;" onclick="seleccionarColor('#ff0000')"></div>
+      <div class="color" style="background:#0000ff;" onclick="seleccionarColor('#0000ff')"></div>
+      <div class="color" style="background:#ffa500;" onclick="seleccionarColor('#ffa500')"></div>
+      <div class="color" style="background:#ffff00;" onclick="seleccionarColor('#ffff00')"></div>
+    </div>
+
+    <div class="navegacion">
+      <button class="btn-nav">← Anterior</button>
+      <button class="btn-nav siguiente">Siguiente →</button>
+    </div>
+  </div>
+
+  <script>
+    let colorSeleccionado = '#ffffff';
+
+    function seleccionarColor(color) {
+      colorSeleccionado = color;
+    }
+
+    function reiniciarCubo() {
+      const casillas = document.querySelectorAll('.casilla');
+      casillas.forEach(c => c.style.backgroundColor = '');
+    }
+
+    document.querySelectorAll('.casilla').forEach(casilla => {
+      casilla.addEventListener('click', () => {
+        casilla.style.backgroundColor = colorSeleccionado;
+      });
+    });
+  </script>
+</body>
+</html>

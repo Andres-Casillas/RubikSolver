@@ -1,0 +1,126 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0a0f1f;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  color: #ffffff;
+}
+
+.cubo-panel {
+  max-width: 400px;
+  margin: auto;
+  background-color: #1c2330;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 0 30px rgba(0,0,0,0.3);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+
+.reiniciar {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.reiniciar:hover {
+  background-color: #666;
+}
+
+.cubo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 60px);
+  grid-template-rows: repeat(3, 60px);
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.casilla {
+  background-color: #2a2f3a;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.color-selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.color {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  cursor: pointer;
+}
+
+.navegacion {
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn-nav {
+  background-color: #1e90ff;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.3rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-nav:hover {
+  background-color: #1674d8;
+}
+
+.siguiente {
+  background-color: #00b894;
+}
+
+.siguiente:hover {
+  background-color: #009e7f;
+}
+.regresar-contenedor {
+  text-align: left;
+  margin-bottom: 1rem;
+}
+
+.btn-regresar {
+  background-color: transparent;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0.4rem 0.8rem;
+  border: 2px solid #1e90ff;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.btn-regresar:hover {
+  background-color: #1e90ff;
+  color: white;
+}
