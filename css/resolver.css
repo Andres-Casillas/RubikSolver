@@ -61,6 +61,7 @@ h1 {
   border-radius: 8px;
   font-weight: bold;
   transition: background-color 0.2s ease;
+  border: none;
 }
 
 .boton:hover {

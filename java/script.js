@@ -4,10 +4,38 @@ let ctx = canvas.getContext("2d");
 let streaming = false;
 let src;
 let cap;
+let cubo = [];
+let colorGrid = Array.from({ length: 3 }, () => Array(3).fill('ninguno'));
+
+function rotarMatriz(matriz, direccion) {
+  if (direccion === "horario") {
+    const transpuesta = matriz[0].map((_, i) => matriz.map(fila => fila[i]));
+    const rotada = transpuesta.map(fila => fila.reverse());
+    return rotada;
+  }
+
+  if (direccion === "antihorario") {
+    const transpuesta = matriz[0].map((_, i) => matriz.map(fila => fila[i]));
+    const rotada = transpuesta.reverse();
+    return rotada;
+  }
+
+  if (direccion === "espejo") {
+    const rotada = matriz.map(fila => fila.slice().reverse());
+    return rotada;
+  }
+
+  if (direccion === "invertida") {
+    const rotada = matriz.slice().reverse();
+    return rotada;
+  }
+
+  return matriz;
+}
 
 function onOpenCvReady() {
   navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-    .then(function(stream) {
+    .then(function (stream) {
       video.srcObject = stream;
 
       video.addEventListener("loadedmetadata", () => {
@@ -16,14 +44,14 @@ function onOpenCvReady() {
 
         video.width = video.videoWidth;
         video.height = video.videoHeight;
-        
+
         src = new cv.Mat(video.height, video.width, cv.CV_8UC4);
         cap = new cv.VideoCapture(video);
 
         processVideo();
       });
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.error("Error al acceder a la cámara: " + err);
     });
 }
@@ -37,22 +65,22 @@ function processVideo() {
 
   const DETECCION_UMBRAL = 0.20;
   const drawColors = {
-    rojo: [255, 0, 0],
-    verde: [0, 255, 0],
-    azul: [0, 0, 255],
-    amarillo: [255, 255, 0],
-    naranja: [255, 120, 0],
-    blanco: [255, 255, 255],
-    ninguno: [50, 50, 50]
+    R: [255, 0, 0],
+    G: [0, 255, 0],
+    B: [0, 0, 255],
+    Y: [255, 255, 0],
+    O: [255, 120, 0],
+    W: [255, 255, 255],
+    N: [50, 50, 50]
   };
 
   const colorRanges = {
-    rojo: [[0, 120, 70], [10, 255, 255], [170, 120, 70], [180, 255, 255]], // Rojo tiene dos rangos
-    verde: [[36, 100, 100], [86, 255, 255]],
-    azul: [[94, 80, 2], [126, 255, 255]],
-    amarillo: [[20, 50, 150], [35, 255, 255]],
-    naranja: [[10, 100, 20], [25, 255, 255]],
-    blanco: [[0, 0, 130], [180, 60, 255]]
+    R: [[0, 120, 70], [10, 255, 255], [170, 120, 70], [180, 255, 255]],
+    G: [[36, 100, 100], [86, 255, 255]],
+    B: [[94, 80, 2], [126, 255, 255]],
+    Y: [[20, 50, 150], [35, 255, 255]],
+    O: [[10, 100, 20], [25, 255, 255]],
+    W: [[0, 0, 130], [180, 60, 255]]
   };
 
   const boxSize = 200;
@@ -62,8 +90,6 @@ function processVideo() {
 
   function draw() {
     cap.read(src);
-    //cv.cvtColor(src, hsv, cv.COLOR_RGBA2RGB);
-    //cv.cvtColor(hsv, hsv, cv.COLOR_RGB2HSV);
     let blurred = new cv.Mat();
     cv.GaussianBlur(src, blurred, new cv.Size(5, 5), 0);
     cv.cvtColor(blurred, hsv, cv.COLOR_RGBA2RGB);
@@ -89,7 +115,7 @@ function processVideo() {
 
         let roi = hsv.roi(new cv.Rect(x1, y1, cellWidth, cellHeight));
 
-        let maxColor = 'ninguno';
+        let maxColor = 'N';
         let maxPixels = 0;
 
         for (let colorName in colorRanges) {
@@ -123,8 +149,9 @@ function processVideo() {
         let totalPixels = roi.rows * roi.cols;
         let porcentaje = maxPixels / totalPixels;
         if (porcentaje < DETECCION_UMBRAL) {
-          maxColor = 'ninguno';
+          maxColor = 'N';
         }
+        colorGrid[row][col] = maxColor;
 
         let color = drawColors[maxColor];
         cv.rectangle(src, new cv.Point(x1, y1), new cv.Point(x2, y2), new cv.Scalar(...color, 255), 5);
@@ -138,3 +165,35 @@ function processVideo() {
 
   requestAnimationFrame(draw);
 }
+
+document.getElementById("guardar").addEventListener("click", () => {
+  const copia = colorGrid.map(fila => [...fila]);
+  console.log(copia);
+
+  cubo.push(copia);
+
+  if (cubo.length === 6) {
+    console.log("Cubo completo:", cubo);
+    alert("Cubo completo.");
+    cubo[5] = rotarMatriz(cubo[5], "antihorario");
+    cubo[5] = rotarMatriz(cubo[5], "antihorario");
+    cubo[4] = rotarMatriz(cubo[4], "antihorario");
+    cubo[4] = rotarMatriz(cubo[4], "antihorario");
+    cubo[3] = rotarMatriz(cubo[3], "invertida");
+
+    fetch('http://localhost:5000/solve', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ matriz: cubo })
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Respuesta del servidor:', data);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }
+});
