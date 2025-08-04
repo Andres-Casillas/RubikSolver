@@ -35,7 +35,7 @@ h1 {
   align-items: center;
 }
 
-.reiniciar {
+#reiniciar {
   background-color: #444;
   color: white;
   border: none;
@@ -44,7 +44,7 @@ h1 {
   cursor: pointer;
 }
 
-.reiniciar:hover {
+#reiniciar:hover {
   background-color: #666;
 }
 
@@ -71,11 +71,20 @@ h1 {
 }
 
 .color {
-  width: 35px;
-  height: 35px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  border: 2px solid #ccc;
   cursor: pointer;
+}
+
+.seleccion {
+  border: 3px solid #ccc;
+}
+
+.deshabilitado {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .navegacion {
@@ -97,13 +106,14 @@ h1 {
   background-color: #1674d8;
 }
 
-.siguiente {
+#siguiente {
   background-color: #00b894;
 }
 
-.siguiente:hover {
+#siguiente:hover {
   background-color: #009e7f;
 }
+
 .regresar-contenedor {
   text-align: left;
   margin-bottom: 1rem;
@@ -124,3 +134,11 @@ h1 {
   background-color: #1e90ff;
   color: white;
 }
+
+.W { background-color: white; }
+.R { background-color: red; }
+.G { background-color: green; }
+.B { background-color: blue; }
+.O { background-color: orange; }
+.Y { background-color: yellow; }
+.N { background-color: #2a2f3a; }
