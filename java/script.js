@@ -1,37 +1,17 @@
+import { rotarMatriz } from './utils.js';
+import { conexionPython } from './utils.js';
+
 let video = document.getElementById("videoInput");
 let canvas = document.getElementById("canvasOutput");
 let ctx = canvas.getContext("2d");
 let streaming = false;
 let src;
 let cap;
-let cubo = [];
-let colorGrid = Array.from({ length: 3 }, () => Array(3).fill('ninguno'));
-
-function rotarMatriz(matriz, direccion) {
-  if (direccion === "horario") {
-    const transpuesta = matriz[0].map((_, i) => matriz.map(fila => fila[i]));
-    const rotada = transpuesta.map(fila => fila.reverse());
-    return rotada;
-  }
-
-  if (direccion === "antihorario") {
-    const transpuesta = matriz[0].map((_, i) => matriz.map(fila => fila[i]));
-    const rotada = transpuesta.reverse();
-    return rotada;
-  }
-
-  if (direccion === "espejo") {
-    const rotada = matriz.map(fila => fila.slice().reverse());
-    return rotada;
-  }
-
-  if (direccion === "invertida") {
-    const rotada = matriz.slice().reverse();
-    return rotada;
-  }
-
-  return matriz;
-}
+let matriz = Array.from({ length: 6 }, () =>
+    Array.from({ length: 3 }, () => Array(3).fill('N'))
+);
+let colorGrid = Array.from({ length: 3 }, () => Array(3).fill('N'));
+let caraActual = 0;
 
 function onOpenCvReady() {
   navigator.mediaDevices.getUserMedia({ video: true, audio: false })
@@ -166,34 +146,61 @@ function processVideo() {
   requestAnimationFrame(draw);
 }
 
-document.getElementById("guardar").addEventListener("click", () => {
+document.getElementById("siguiente").addEventListener("click", () => {
   const copia = colorGrid.map(fila => [...fila]);
   console.log(copia);
 
-  cubo.push(copia);
+  matriz[caraActual] = copia;
 
-  if (cubo.length === 6) {
-    console.log("Cubo completo:", cubo);
+  if (caraActual < 5) {
+        caraActual++;
+    } else { caraActual = 0; }
+  actualizarCara();
+
+  const existe = matriz.some(bloque => bloque.some(fila => fila.includes('N')));
+  if (!existe) {
     alert("Cubo completo.");
-    cubo[5] = rotarMatriz(cubo[5], "antihorario");
-    cubo[5] = rotarMatriz(cubo[5], "antihorario");
-    cubo[4] = rotarMatriz(cubo[4], "antihorario");
-    cubo[4] = rotarMatriz(cubo[4], "antihorario");
-    cubo[3] = rotarMatriz(cubo[3], "invertida");
+    document.getElementById('guardar').classList.remove('deshabilitado');
+    document.getElementById('guardar').addEventListener('click', () => {
+      const cubo = [];
+      cubo[0] = matriz[4];
+      cubo[1] = matriz[0];
+      cubo[2] = matriz[5];
+      cubo[3] = matriz[2];
+      cubo[4] = matriz[3];
+      cubo[5] = matriz[1];
 
-    fetch('http://localhost:5000/solve', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ matriz: cubo })
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Respuesta del servidor:', data);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
+      cubo[0] = rotarMatriz(cubo[0], "horario");
+      cubo[2] = rotarMatriz(cubo[2], "antihorario");
+      cubo[3] = rotarMatriz(cubo[3], "espejo");
+
+      conexionPython(cubo);
+    });
   }
 });
+
+function actualizarCara() {
+    switch (caraActual) {
+        case 0:
+            document.getElementById('cara').innerText = 'Cara Frontal';
+            break;
+        case 1:
+            document.getElementById('cara').innerText = 'Cara Derecha';
+            break;
+        case 2:
+            document.getElementById('cara').innerText = 'Cara Posterior';
+            break;
+        case 3:
+            document.getElementById('cara').innerText = 'Cara Izquierda';
+            break;
+        case 4:
+            document.getElementById('cara').innerText = 'Cara Superior';
+            break;
+        case 5:
+            document.getElementById('cara').innerText = 'Cara Inferior';
+            break;
+    }
+}
+
+window.onOpenCvReady = onOpenCvReady;
+actualizarCara();

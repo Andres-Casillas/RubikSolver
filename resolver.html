@@ -9,6 +9,7 @@
 <body>
   <h1>Resolver Cubo 3x3</h1>
 
+  <span id="cara"></span>
   <div class="resolver-container">
     <div class="camara-placeholder">
       <video id="videoInput" style="display: none;"></video>
@@ -21,7 +22,8 @@
   </div>
 
   <div class="botones">
-    <button type="button" id="guardar" class="boton">Guardar</button>
+    <button type="button" id="siguiente" class="boton secundario">Siguiente</button>
+    <button type="button" id="guardar" class="boton deshabilitado">Guardar</button>
     <a href="Manual.html"><button type="button" class="boton secundario">Agregar manualmente</button></a>
     <a href="Menu.html"><button type="button" class="boton secundario">Regresar</button></a>
     <a href="Entrenamiento.html"><button type="button" class="boton secundario">Entrenamiento</button></a>
@@ -30,7 +32,7 @@
   
   <!-- Carga OpenCV.js desde CDN oficial -->
   <script async src="https://docs.opencv.org/4.10.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
-  <script defer src="/java/script.js"></script>
+  <script type="module" src="/java/script.js"></script>
 </body>
 </html>
 

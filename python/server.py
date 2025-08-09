@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from cube import CuboRubik
+from cube import CuboRubik, movimientos, simplificar
 
 app = Flask(__name__)
 CORS(app)
@@ -14,7 +14,22 @@ def recibir_matriz():
         cubo = CuboRubik(matriz)
         cubo.mostrar_cubo()
 
-        return jsonify({"status": "Matriz recibida correctamente", "matriz": matriz})
+        cubo.cruz()
+        cubo.f2l()
+        cubo.oll()
+        cubo.pll()
+        cubo.mostrar_cubo()
+
+        solucion = simplificar(movimientos)
+        print("movimientos")
+        print(movimientos)
+        print(len(movimientos))
+        print()
+        print("solucion")
+        print(solucion)
+        print(len(solucion))
+
+        return jsonify({"status": "Matriz recibida correctamente", "matriz": matriz, "solucion": solucion, "movimientos": len(solucion)})
     else:
         return jsonify({"status": "Error", "message": "La matriz debe ser una lista"})
 

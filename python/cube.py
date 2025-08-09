@@ -1,3 +1,4 @@
+from collections import deque
 import colorama
 WHITE = colorama.Fore.WHITE
 RED = colorama.Fore.RED
@@ -9,7 +10,34 @@ PINK = "\033[38;2;255;0;255m"
 RESET = colorama.Style.RESET_ALL
 colorama.init()
 
-contador_recursivo = 0
+movimientos = []
+
+def simplificar(moves):
+    simples = deque()
+    
+    i = 0
+    while i < len(moves):
+        face = moves[i].replace("'", "").replace("2", "")
+        count = 0
+        while i < len(moves) and moves[i].replace("'", "").replace("2", "") == face:
+            move = moves[i]
+            if move.endswith("'"):
+                count -= 1
+            elif move.endswith("2"):
+                count += 2
+            else:
+                count += 1
+            i += 1
+
+        count = count % 4
+        if count == 1:
+            simples.append(face)
+        elif count == 2:
+            simples.append(face + "2")
+        elif count == 3:
+            simples.append(face + "'")
+
+    return list(simples)
 
 def printi(cubito):
     if(cubito == "W"):
@@ -56,15 +84,15 @@ def rotar_matriz(matriz, string):
 class CuboRubik:
     def __init__(self, cubo=None):
         self.cubo = cubo if cubo is not None else []
+        movimientos.clear()
 
     
     def rotacion(self, string):
-        global contador_recursivo
-        contador_recursivo += 1
         #           ROTACIONES VERTICALES
         #                R L M
 
         if(string == "R"):
+            movimientos.append(string)
             temp = [fila[2][0] for fila in self.cubo[0]]
             for i in range(3):
                 self.cubo[0][i][2] = self.cubo[1][i][2]
@@ -78,6 +106,7 @@ class CuboRubik:
             self.cubo[3][0][2], self.cubo[3][1][2], self.cubo[3][2][2] = self.cubo[3][2][2], self.cubo[3][1][2], self.cubo[3][0][2]
             self.cubo[5] = rotar_matriz(self.cubo[5], "horario")
         if(string == "R'"):
+            movimientos.append(string)
             temp = [fila[2][0] for fila in self.cubo[0]]
             for i in range(3):
                 self.cubo[0][i][2] = self.cubo[3][i][2]
@@ -92,6 +121,7 @@ class CuboRubik:
             self.cubo[5] = rotar_matriz(self.cubo[5], "antihorario")
         
         if(string == "L"):
+            movimientos.append(string)
             temp = [fila[0][0] for fila in self.cubo[0]]
             for i in range(3):
                 self.cubo[0][i][0] = self.cubo[3][i][0]
@@ -105,6 +135,7 @@ class CuboRubik:
             self.cubo[0][0][0], self.cubo[0][1][0], self.cubo[0][2][0] = self.cubo[0][2][0], self.cubo[0][1][0], self.cubo[0][0][0]
             self.cubo[4] = rotar_matriz(self.cubo[4], "horario")
         if(string == "L'"):
+            movimientos.append(string)
             temp = [fila[0][0] for fila in self.cubo[0]]
             for i in range(3):
                 self.cubo[0][i][0] = self.cubo[1][i][0]
@@ -119,6 +150,7 @@ class CuboRubik:
             self.cubo[4] = rotar_matriz(self.cubo[4], "antihorario")
 
         if(string == "M"):
+            movimientos.append(string)
             temp = [fila[1][0] for fila in self.cubo[0]]
             for i in range(3):
                 self.cubo[0][i][1] = self.cubo[3][i][1]
@@ -131,6 +163,7 @@ class CuboRubik:
             
             self.cubo[0][0][1], self.cubo[0][1][1], self.cubo[0][2][1] = self.cubo[0][2][1], self.cubo[0][1][1], self.cubo[0][0][1]
         if(string == "M'"):
+            movimientos.append(string)
             temp = [fila[1][0] for fila in self.cubo[0]]
             for i in range(3):
                 self.cubo[0][i][1] = self.cubo[1][i][1]
@@ -147,6 +180,7 @@ class CuboRubik:
         #                U E D
 
         if(string == "U"):
+            movimientos.append(string)
             temp = self.cubo[1][0]
             self.cubo[1][0] = self.cubo[5][0]
             self.cubo[5][0] = self.cubo[3][0]
@@ -157,6 +191,7 @@ class CuboRubik:
             self.cubo[5][0] = list(reversed(self.cubo[5][0]))
             self.cubo[0] = rotar_matriz(self.cubo[0], "horario")
         if(string == "U'"):
+            movimientos.append(string)
             temp = self.cubo[1][0]
             self.cubo[1][0] = self.cubo[4][0]
             self.cubo[4][0] = self.cubo[3][0]
@@ -168,6 +203,7 @@ class CuboRubik:
             self.cubo[0] = rotar_matriz(self.cubo[0], "antihorario")
 
         if(string == "E"):
+            movimientos.append(string)
             temp = self.cubo[1][1]
             self.cubo[1][1] = self.cubo[4][1]
             self.cubo[4][1] = self.cubo[3][1]
@@ -177,6 +213,7 @@ class CuboRubik:
             self.cubo[3][1] = list(reversed(self.cubo[3][1]))
             self.cubo[4][1] = list(reversed(self.cubo[4][1]))
         if(string == "E'"):
+            movimientos.append(string)
             temp = self.cubo[1][1]
             self.cubo[1][1] = self.cubo[5][1]
             self.cubo[5][1] = self.cubo[3][1]
@@ -187,6 +224,7 @@ class CuboRubik:
             self.cubo[5][1] = list(reversed(self.cubo[5][1]))
 
         if(string == "D"):
+            movimientos.append(string)
             temp = self.cubo[1][2]
             self.cubo[1][2] = self.cubo[4][2]
             self.cubo[4][2] = self.cubo[3][2]
@@ -197,6 +235,7 @@ class CuboRubik:
             self.cubo[4][2] = list(reversed(self.cubo[4][2]))            
             self.cubo[2] = rotar_matriz(self.cubo[2], "horario")
         if(string == "D'"):
+            movimientos.append(string)
             temp = self.cubo[1][2]
             self.cubo[1][2] = self.cubo[5][2]
             self.cubo[5][2] = self.cubo[3][2]
@@ -210,6 +249,7 @@ class CuboRubik:
         #           ROTACION FRONTAL 
         #                   F
         if(string == "F"):
+            movimientos.append(string)
             temp = self.cubo[0][2]
             self.cubo[0][2] = [fila[2] for fila in reversed(self.cubo[4])]
             for i in range(3):
@@ -220,6 +260,7 @@ class CuboRubik:
 
             self.cubo[1] = rotar_matriz(self.cubo[1], "horario")
         if(string == "F'"):
+            movimientos.append(string)
             temp = self.cubo[0][2]
             self.cubo[0][2] = [fila[0] for fila in self.cubo[5]]
             for i in range(3):
@@ -236,7 +277,6 @@ class CuboRubik:
         #                   r l f d
 
         if(string == "f"):
-            contador_recursivo -= 1
             temp = self.cubo[0][1]
             self.cubo[0][1] = [fila[1] for fila in reversed(self.cubo[4])]
             for i in range(3):
@@ -245,8 +285,9 @@ class CuboRubik:
             for i in range(3):
                 self.cubo[5][i][1] = temp[i]
             self.rotacion("F")
+            movimientos.pop()
+            movimientos.append(string)
         if(string == "f'"):
-            contador_recursivo -= 1
             temp = self.cubo[0][1]
             self.cubo[0][1] = [fila[1] for fila in self.cubo[5]]
             for i in range(3):
@@ -258,66 +299,92 @@ class CuboRubik:
             self.cubo[5][0][1], self.cubo[5][1][1], self.cubo[5][2][1] = self.cubo[5][2][1], self.cubo[5][1][1], self.cubo[5][0][1]
             self.cubo[4][0][1], self.cubo[4][1][1], self.cubo[4][2][1] = self.cubo[4][2][1], self.cubo[4][1][1], self.cubo[4][0][1]
             self.rotacion("F'")
+            movimientos.pop()
+            movimientos.append(string)
 
         if(string == "r"):
-            contador_recursivo -= 2
             self.rotacion("R")
             self.rotacion("M'")
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.append(string)
         if(string == "r'"):
-            contador_recursivo -= 2
             self.rotacion("R'")
             self.rotacion("M")
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.append(string)
         
         if(string == "d"):
-            contador_recursivo -= 2
             self.rotacion("D")
             self.rotacion("E")
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.append(string)
         if(string == "d'"):
-            contador_recursivo -= 2
             self.rotacion("D'")
             self.rotacion("E'")
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.append(string)
 
         #           ROTACIONES DOBLES
         #                 R2 L2 M2 U2
 
         if(string == "L2"):
-            contador_recursivo -= 1
             self.rotacion("L")
             self.rotacion("L")
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.append(string)
 
         if(string == "R2"):
-            contador_recursivo -= 1
             self.rotacion("R")
             self.rotacion("R")
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.append(string)
 
         if(string == "M2"):
-            contador_recursivo -= 1
             self.rotacion("M")
             self.rotacion("M")
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.append(string)
 
         if(string == "U2"):
-            contador_recursivo -= 1
             self.rotacion("U")
             self.rotacion("U")
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.append(string)
 
         if(string == "F2"):
-            contador_recursivo -= 1
             self.rotacion("F")
             self.rotacion("F")
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.append(string)
 
         #           ROTACIONES DE EJE
         #                   y
 
         if(string == "y"):
-            contador_recursivo -= 3
             self.rotacion("U")
             self.rotacion("E'")
             self.rotacion("D'")
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.append(string)
         if(string == "y'"):
-            contador_recursivo -= 3
             self.rotacion("U'")
             self.rotacion("E")
             self.rotacion("D")
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.pop()
+            movimientos.append(string)
 
       
     def cruz(self):

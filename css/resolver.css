@@ -64,6 +64,12 @@ h1 {
   border: none;
 }
 
+.deshabilitado {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 .boton:hover {
   background-color: #1674d8;
 }
