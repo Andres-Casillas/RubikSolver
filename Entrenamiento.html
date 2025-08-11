@@ -2,76 +2,33 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Entrenamiento</title>
   <link rel="stylesheet" href="css/Entrenamiento.css" />
-  <script>
-    let casoActual = 0;
-    const casos = ["caso1", "caso2", "caso3", "caso4"];
 
-    function mostrarCaso(id) {
-      document.querySelectorAll('.caso').forEach(sec => sec.style.display = 'none');
-      document.getElementById(id).style.display = 'block';
-      casoActual = casos.indexOf(id);
-    }
-
-    function navegar(offset) {
-      casoActual = (casoActual + offset + casos.length) % casos.length;
-      mostrarCaso(casos[casoActual]);
-      document.getElementById('casos').value = casos[casoActual];
-    }
-
-    window.onload = () => {
-      mostrarCaso(casos[0]); // Muestra el primer caso al cargar
-      document.getElementById('casos').value = casos[0];
-    };
-  </script>
 </head>
 <body>
   <header>
-    <button onclick="window.location.href='resolver.html'" class="volver">←</button>
+    <button onclick="window.location.href='resolver.html'" class="volver" title="Volver">←</button>
     Entrenamiento
   </header>
 
   <main>
-    <section class="selector">
-      <label for="casos">Selecciona un caso:</label>
-      <select id="casos" onchange="mostrarCaso(this.value)">
-        <option value="caso1">Caso 1</option>
-        <option value="caso2">Caso 2</option>
-        <option value="caso3">Caso 3</option>
-        <option value="caso4">Caso 4</option>
-      </select>
+    <section class="caso">
+      <h2>Caso</h2>
+      <div class="placeholder-modelo"></div>
+      <div id="cronometro">0.00s</div>
+      <div class="navegacion">
+        <button id="btnSiguiente">Siguiente ▶</button>
+        <button id="btnReiniciar" disabled>Reiniciar Cronómetro</button>
+      </div>
+      <p class="info">
+        Barra espacio: Iniciar / Detener cronómetro (solo 1 vez).<br />
+        El cronómetro no se puede reanudar tras detenerlo, usa el botón de reinicio para volver a empezar.
+      </p>
     </section>
-
-    <section id="caso1" class="caso">
-      <h2>Caso 1</h2>
-      <div class="placeholder-modelo">[Espacio para modelo 3D]</div>
-      <textarea placeholder="Escribe tu solución aquí..."></textarea>
-    </section>
-
-    <section id="caso2" class="caso" style="display: none;">
-      <h2>Caso 2</h2>
-      <div class="placeholder-modelo">[Espacio para modelo 3D]</div>
-      <textarea placeholder="Escribe tu solución aquí..."></textarea>
-    </section>
-
-    <section id="caso3" class="caso" style="display: none;">
-      <h2>Caso 3</h2>
-      <div class="placeholder-modelo">[Espacio para modelo 3D]</div>
-      <textarea placeholder="Escribe tu solución aquí..."></textarea>
-    </section>
-
-    <section id="caso4" class="caso" style="display: none;">
-      <h2>Caso 4</h2>
-      <div class="placeholder-modelo">[Espacio para modelo 3D]</div>
-      <textarea placeholder="Escribe tu solución aquí..."></textarea>
-    </section>
-
-    <div class="navegacion">
-      <button onclick="navegar(-1)">◀ Anterior</button>
-      <button onclick="navegar(1)">Siguiente ▶</button>
-    </div>
   </main>
+  <script type="module" src="java/Entrenamiento.js"></script>
+
 </body>
 </html>
