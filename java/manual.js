@@ -1,3 +1,5 @@
+manual.js
+
 import { rotarMatriz } from './utils.js';
 import { conexionPython } from './utils.js';
 
