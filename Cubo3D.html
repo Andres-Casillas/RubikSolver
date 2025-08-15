@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cubo Rubik 3×3 — Three.js</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+      #info {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: #fff;
+        font-family: inherit;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 8px;
+        max-width: 400px;
+      }
+      #controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 15px;
+        border-radius: 10px;
+        align-items: center;
+      }
+      .control-btn {
+        background: #4CAF50;
+        border: none;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s;
+      }
+      .control-btn:hover {
+        background: #45a049;
+      }
+      .control-btn:disabled {
+        background: #666;
+        cursor: not-allowed;
+      }
+      .step-info {
+        color: #fff;
+        margin: 5px 0;
+        font-size: 12px;
+      }
+      #speed-control {
+        margin-left: 15px;
+        color: #fff;
+      }
+      #speed-slider {
+        margin-left: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info">
+      <div>🎮 <strong>Cubo Rubik 3×3 Interactivo</strong></div>
+      <div class="step-info" id="step-info">Listo para comenzar</div>
+      <div class="step-info" id="move-description">Presiona un botón para comenzar</div>
+    </div>
+    
+    <div id="controls">
+      <button class="control-btn" id="prev-btn" disabled>⬅️ Anterior</button>
+      <button class="control-btn" id="next-btn" disabled>Siguiente ➡️</button>
+      <button class="control-btn" id="reset-btn">🔄 Reiniciar</button>
+      <button class="control-btn" id="pause-btn" disabled>⏸️ Pausar</button>
+      <button class="control-btn" id="load-sequence-btn">📝 Cargar Secuencia</button>
+      
+      <div id="speed-control">
+        <label>Velocidad: <input type="range" id="speed-slider" min="100" max="1000" value="300" step="50"></label>
+        <span id="speed-value">300ms</span>
+      </div>
+    </div>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.156.0/build/three.module.js",
+          "three/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.156.0/examples/jsm/controls/OrbitControls.js"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/controls/OrbitControls.js";
+
+      // Escena, cámara, renderer
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x1a1a1a);
+      
+      const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+      camera.position.set(4, 4, 6);
+      
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      document.body.appendChild(renderer.domElement);
+      
+      // Luces
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+      
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(5, 5, 5);
+      directionalLight.castShadow = true;
+      scene.add(directionalLight);
+      
+      // Plano
+      const planeGeometry = new THREE.PlaneGeometry(20, 20);
+      const planeMaterial = new THREE.MeshLambertMaterial({ color: 0x808080, transparent: true, opacity: 0.3 });
+      const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+      plane.rotation.x = -Math.PI / 2;
+      plane.position.y = -2;
+      plane.receiveShadow = true;
+      scene.add(plane);
+      
+      window.addEventListener("resize", () => {
+        camera.aspect = innerWidth / innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(innerWidth, innerHeight);
+      });
+      new OrbitControls(camera, renderer.domElement);
+
+      // Parámetros
+      const cubieSize = 0.95;
+      const gap = 0.1;
+      let animationDuration = 300;
+
+      function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+      const epsilon = 0.01;
+      const isClose = (a, b) => Math.abs(a - b) < epsilon;
+
+      // Colores base (no usados para pintar manual, sólo referencia)
+      const COLORS = {
+        U: 0xffd700,  // Amarillo
+        D: 0xffffff,  // Blanco
+        F: 0x00aa00,  // Verde
+        B: 0x0066cc,  // Azul
+        L: 0xff6600,  // Naranja
+        R: 0xcc0000,  // Rojo
+      };
+
+      // Color por defecto gris para caras no asignadas
+      const DEFAULT_GRAY = 0x222222;
+
+      // Mapa de letras -> color
+      const COLOR_MAP = {
+        'W': 0xffffff,
+        'R': 0xcc0000,
+        'Y': 0xffd700,
+        'O': 0xff6600,
+        'G': 0x00aa00,
+        'B': 0x0066cc,
+        'N': DEFAULT_GRAY // sin color -> gris
+      };
+
+      // Seleccionar color base según posición (se usa para crear el cubo)
+      const getColorForPosition = (x, y, z, faceIndex) => {
+        // 0: +X, 1: -X, 2: +Y, 3: -Y, 4: +Z, 5: -Z
+        switch (faceIndex) {
+          case 0: return isClose(x, 1) ? COLORS.R : DEFAULT_GRAY; // Right
+          case 1: return isClose(x, -1) ? COLORS.L : DEFAULT_GRAY;// Left
+          case 2: return isClose(y, 1) ? COLORS.U : DEFAULT_GRAY; // Up
+          case 3: return isClose(y, -1) ? COLORS.D : DEFAULT_GRAY;// Down
+          case 4: return isClose(z, 1) ? COLORS.F : DEFAULT_GRAY; // Front
+          case 5: return isClose(z, -1) ? COLORS.B : DEFAULT_GRAY;// Back
+          default: return DEFAULT_GRAY;
+        }
+      };
+
+      // Convierte coordenadas de cubie a índices de matriz de cara
+      function obtenerPosicionEnCara(coord1, coord2, cara) {
+        const convertir = (coord) => {
+          if (coord < -0.5) return 0;
+          if (coord > 0.5) return 2;
+          return 1;
+        };
+        let row, col;
+        switch (cara) {
+          case 'U':
+            row = 2 - convertir(coord1); // z invertido
+            col = convertir(coord2);     // x normal
+            break;
+          case 'D':
+            row = convertir(coord1);     // z normal
+            col = convertir(coord2);     // x normal
+            break;
+          case 'F':
+            row = 2 - convertir(coord1); // y invertido
+            col = convertir(coord2);     // x normal
+            break;
+          case 'B':
+            row = 2 - convertir(coord1); // y invertido
+            col = 2 - convertir(coord2); // x invertido
+            break;
+          case 'L':
+            row = 2 - convertir(coord1); // y invertido
+            col = 2 - convertir(coord2); // z invertido
+            break;
+          case 'R':
+            row = 2 - convertir(coord1); // y invertido
+            col = convertir(coord2);     // z normal
+            break;
+          default:
+            row = 0; col = 0;
+        }
+        row = Math.max(0, Math.min(2, row));
+        col = Math.max(0, Math.min(2, col));
+        return [row, col];
+      }
+
+      // Clase Cubie
+      class Cubie extends THREE.Mesh {
+        constructor(pos, size) {
+          super();
+          this.geometry = new THREE.BoxGeometry(size, size, size);
+          const [x, y, z] = pos;
+
+          const materials = [];
+          for (let i = 0; i < 6; i++) {
+            const color = getColorForPosition(x, y, z, i);
+            materials.push(new THREE.MeshLambertMaterial({ color, transparent: false, opacity: 1.0 }));
+          }
+          this.material = materials;
+
+          const edges = new THREE.EdgesGeometry(this.geometry);
+          const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+          const wireframe = new THREE.LineSegments(edges, lineMaterial);
+          this.add(wireframe);
+
+          this.position.set(
+            x * (size + gap),
+            y * (size + gap),
+            z * (size + gap)
+          );
+          this.userData.cubePos = [...pos];
+          this.castShadow = true;
+          this.receiveShadow = true;
+        }
+
+        updateColors() {
+          // Nota: este método recolorea al estado "base".
+          // Para el flujo manual, evitaremos llamar esto después de pintar manualmente.
+          const [x, y, z] = this.userData.cubePos;
+          for (let i = 0; i < 6; i++) {
+            const newColor = getColorForPosition(x, y, z, i);
+            this.material[i].color.setHex(newColor);
+          }
+        }
+      }
+
+      // Crear cubo (26 cubies)
+      const cubies = [];
+      let cubieCount = 0;
+      for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
+          for (let z = -1; z <= 1; z++) {
+            if (x === 0 && y === 0 && z === 0) continue;
+            const c = new Cubie([x, y, z], cubieSize);
+            scene.add(c);
+            cubies.push(c);
+            cubieCount++;
+          }
+        }
+      }
+      console.log(`✅ Cubo creado con ${cubieCount} cubies (debería ser 26)`);
+
+      // Función: poner todas las caras externas en gris
+      function setAllGray() {
+        cubies.forEach(cubie => {
+          const [x, y, z] = cubie.userData.cubePos;
+          cubie.material.forEach((mat, faceIndex) => {
+            const isExternal =
+              (faceIndex === 0 && isClose(x, 1)) ||
+              (faceIndex === 1 && isClose(x, -1)) ||
+              (faceIndex === 2 && isClose(y, 1)) ||
+              (faceIndex === 3 && isClose(y, -1)) ||
+              (faceIndex === 4 && isClose(z, 1)) ||
+              (faceIndex === 5 && isClose(z, -1));
+            if (isExternal) mat.color.setHex(DEFAULT_GRAY);
+          });
+        });
+        console.log('🎨 Cubo puesto en gris.');
+      }
+
+      // Función: aplicar matriz [U,F,D,B,L,R] al cubo
+      function aplicarColoresDeMatriz(matriz) {
+        if (!Array.isArray(matriz) || matriz.length !== 6) {
+          console.warn('aplicarColoresDeMatriz: matriz inválida', matriz);
+          return;
+        }
+        // Caras por clave
+        const caras = { U: matriz[0], F: matriz[1], D: matriz[2], B: matriz[3], L: matriz[4], R: matriz[5] };
+
+        cubies.forEach(cubie => {
+          const [x, y, z] = cubie.userData.cubePos;
+          cubie.material.forEach((material, faceIndex) => {
+            let colorHex = DEFAULT_GRAY;
+            switch (faceIndex) {
+              case 0: // +X -> R
+                if (isClose(x, 1)) {
+                  const [row, col] = obtenerPosicionEnCara(y, z, 'R');
+                  const letra = caras.R?.[row]?.[col] ?? 'N';
+                  colorHex = COLOR_MAP[letra] ?? DEFAULT_GRAY;
+                }
+                break;
+              case 1: // -X -> L
+                if (isClose(x, -1)) {
+                  const [row, col] = obtenerPosicionEnCara(y, z, 'L');
+                  const letra = caras.L?.[row]?.[col] ?? 'N';
+                  colorHex = COLOR_MAP[letra] ?? DEFAULT_GRAY;
+                }
+                break;
+              case 2: // +Y -> U
+                if (isClose(y, 1)) {
+                  const [row, col] = obtenerPosicionEnCara(z, x, 'U');
+                  const letra = caras.U?.[row]?.[col] ?? 'N';
+                  colorHex = COLOR_MAP[letra] ?? DEFAULT_GRAY;
+                }
+                break;
+              case 3: // -Y -> D
+                if (isClose(y, -1)) {
+                  const [row, col] = obtenerPosicionEnCara(z, x, 'D');
+                  const letra = caras.D?.[row]?.[col] ?? 'N';
+                  colorHex = COLOR_MAP[letra] ?? DEFAULT_GRAY;
+                }
+                break;
+              case 4: // +Z -> F
+                if (isClose(z, 1)) {
+                  const [row, col] = obtenerPosicionEnCara(y, x, 'F');
+                  const letra = caras.F?.[row]?.[col] ?? 'N';
+                  colorHex = COLOR_MAP[letra] ?? DEFAULT_GRAY;
+                }
+                break;
+              case 5: // -Z -> B
+                if (isClose(z, -1)) {
+                  const [row, col] = obtenerPosicionEnCara(y, x, 'B');
+                  const letra = caras.B?.[row]?.[col] ?? 'N';
+                  colorHex = COLOR_MAP[letra] ?? DEFAULT_GRAY;
+                }
+                break;
+            }
+            material.color.setHex(colorHex);
+          });
+        });
+
+        console.log('✅ Colores aplicados desde matriz al cubo 3D.');
+      }
+
+      // Depuración y API pública
+      window.CubeDebug = {
+        cubies,
+        epsilon,
+        isClose,
+        getColorForPosition,
+        setAllGray,
+        aplicarColoresDeMatriz,
+        obtenerPosicionEnCara,
+        getCubieAt: (x, y, z) => cubies.find(c =>
+          isClose(c.userData.cubePos[0], x) &&
+          isClose(c.userData.cubePos[1], y) &&
+          isClose(c.userData.cubePos[2], z)
+        ),
+        inspectColors: () => {
+          cubies.forEach((cubie, i) => {
+            const pos = cubie.userData.cubePos;
+            console.log(`Cubie ${i} at [${pos.join(', ')}]:`,
+              cubie.material.map((m, j) => `Face ${j}: #${m.color.getHexString()}`)
+            );
+          });
+        },
+        forceUpdateAllColors: () => {
+          cubies.forEach(cubie => cubie.updateColors());
+          console.log('🔄 Todos los colores han sido actualizados');
+        }
+      };
+
+      // Controles de animación (igual que tenías)
+      let moveSequence = [];
+      let currentMoveIndex = -1;
+      let isAnimating = false;
+      let isPaused = false;
+      let animationId = null;
+
+      const MOVE_DESCRIPTIONS = {
+        'R': 'Gira la cara derecha en sentido horario',
+        "R'": 'Gira la cara derecha en sentido antihorario',
+        'R2': 'Gira la cara derecha 180 grados',
+        'L': 'Gira la cara izquierda en sentido horario',
+        "L'": 'Gira la cara izquierda en sentido antihorario',
+        'L2': 'Gira la cara izquierda 180 grados',
+        'U': 'Gira la cara superior en sentido horario',
+        "U'": 'Gira la cara superior en sentido antihorario',
+        'U2': 'Gira la cara superior 180 grados',
+        'D': 'Gira la cara inferior en sentido horario',
+        "D'": 'Gira la cara inferior en sentido antihorario',
+        'D2': 'Gira la cara inferior 180 grados',
+        'F': 'Gira la cara frontal en sentido horario',
+        "F'": 'Gira la cara frontal en sentido antihorario',
+        'F2': 'Gira la cara frontal 180 grados',
+        'B': 'Gira la cara trasera en sentido horario',
+        "B'": 'Gira la cara trasera en sentido antihorario',
+        'B2': 'Gira la cara trasera 180 grados'
+      };
+
+      function animateMovement(move, onComplete) {
+        if (isAnimating) return;
+        isAnimating = true;
+        const { axis, layerFilter, angle } = parseMove(move);
+        const group = new THREE.Group();
+        const affected = cubies.filter(c => layerFilter(c.userData.cubePos));
+
+        affected.forEach(c => { scene.remove(c); group.add(c); });
+        scene.add(group);
+
+        const from = 0, to = angle * (Math.PI / 2);
+        const start = performance.now();
+
+        affected.forEach(c => {
+          c.material.forEach(mat => (mat.transparent = true));
+          c.material.forEach(mat => (mat.opacity = 0.8));
+        });
+
+        function step(t) {
+          if (isPaused) { animationId = requestAnimationFrame(step); return; }
+          const progress = Math.min((t - start) / animationDuration, 1);
+          const eased = easeInOutCubic(progress);
+          group.rotation[axis] = THREE.MathUtils.lerp(from, to, eased);
+
+          if (progress < 1) {
+            animationId = requestAnimationFrame(step);
+          } else {
+            affected.forEach(c => {
+              c.material.forEach(mat => (mat.opacity = 1.0));
+              c.material.forEach(mat => (mat.transparent = false));
+            });
+
+            affected.forEach(c => {
+              const rotatedPos = new THREE.Vector3().copy(c.position);
+              rotatedPos.applyAxisAngle(
+                axis === "x" ? new THREE.Vector3(1, 0, 0) :
+                axis === "y" ? new THREE.Vector3(0, 1, 0) :
+                                new THREE.Vector3(0, 0, 1),
+                to
+              );
+              const newLogicalPos = [
+                Math.round(rotatedPos.x / (cubieSize + gap)),
+                Math.round(rotatedPos.y / (cubieSize + gap)),
+                Math.round(rotatedPos.z / (cubieSize + gap)),
+              ];
+              c.userData.cubePos = newLogicalPos;
+
+              // CUIDADO: updateColors recolorea a estado base (no llamarlo si quieres conservar manual)
+              // c.updateColors();
+
+              group.remove(c);
+              scene.add(c);
+            });
+
+            scene.remove(group);
+            isAnimating = false;
+            animationId = null;
+            if (onComplete) onComplete();
+          }
+        }
+        animationId = requestAnimationFrame(step);
+      }
+
+      function parseMove(move) {
+        const face = move[0];
+        const primed = move.includes("'");
+        const double = move.includes("2");
+        const angle = double ? 2 : 1;
+        const dir = primed ? -1 : 1;
+        const axisMap = { U: "y", D: "y", F: "z", B: "z", L: "x", R: "x" };
+        const layerMap = {
+          U: (cubie) => isClose(cubie[1], 1),
+          D: (cubie) => isClose(cubie[1], -1),
+          F: (cubie) => isClose(cubie[2], 1),
+          B: (cubie) => isClose(cubie[2], -1),
+          L: (cubie) => isClose(cubie[0], -1),
+          R: (cubie) => isClose(cubie[0], 1),
+        };
+        return { axis: axisMap[face], layerFilter: layerMap[face], angle: angle * dir };
+      }
+
+      function loadSequence(moves) {
+        moveSequence = [...moves];
+        currentMoveIndex = -1;
+        updateUI();
+        updateMoveDescription();
+      }
+      function nextMove() {
+        if (isAnimating || currentMoveIndex >= moveSequence.length - 1) return;
+        currentMoveIndex++;
+        const move = moveSequence[currentMoveIndex];
+        updateMoveDescription();
+        animateMovement(move, () => { updateUI(); });
+      }
+      function previousMove() {
+        if (isAnimating || currentMoveIndex < 0) return;
+        const move = moveSequence[currentMoveIndex];
+        const inverseMove = getInverseMove(move);
+        currentMoveIndex--;
+        updateMoveDescription();
+        animateMovement(inverseMove, () => { updateUI(); });
+      }
+      function getInverseMove(move) {
+        if (move.includes("'")) return move.replace("'", "");
+        if (move.includes("2")) return move;
+        return move + "'";
+      }
+      function resetCube() {
+        if (isAnimating) return;
+        const inverseMoves = [];
+        for (let i = currentMoveIndex; i >= 0; i--) inverseMoves.push(getInverseMove(moveSequence[i]));
+        if (inverseMoves.length === 0) return;
+        let index = 0;
+        function execNext() {
+          if (index < inverseMoves.length) {
+            animateMovement(inverseMoves[index], () => { index++; execNext(); });
+          } else {
+            currentMoveIndex = -1;
+            updateUI();
+            updateMoveDescription();
+          }
+        }
+        execNext();
+      }
+      function togglePause() {
+        isPaused = !isPaused;
+        document.getElementById('pause-btn').textContent = isPaused ? '▶️ Continuar' : '⏸️ Pausar';
+      }
+      function updateUI() {
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        prevBtn.disabled = currentMoveIndex < 0 || isAnimating;
+        nextBtn.disabled = currentMoveIndex >= moveSequence.length - 1 || isAnimating;
+        pauseBtn.disabled = !isAnimating;
+        const stepInfo = document.getElementById('step-info');
+        if (moveSequence.length > 0) {
+          stepInfo.textContent = `Paso ${currentMoveIndex + 1} de ${moveSequence.length}`;
+        } else {
+          stepInfo.textContent = 'Listo para comenzar';
+        }
+      }
+      function updateMoveDescription() {
+        const moveDesc = document.getElementById('move-description');
+        if (currentMoveIndex >= 0 && currentMoveIndex < moveSequence.length) {
+          const move = moveSequence[currentMoveIndex];
+          const descriptions = {
+            'R': 'Gira la cara derecha en sentido horario', "R'": 'Gira la cara derecha en sentido antihorario', 'R2': 'Gira la cara derecha 180 grados',
+            'L': 'Gira la cara izquierda en sentido horario', "L'": 'Gira la cara izquierda en sentido antihorario', 'L2': 'Gira la cara izquierda 180 grados',
+            'U': 'Gira la cara superior en sentido horario', "U'": 'Gira la cara superior en sentido antihorario', 'U2': 'Gira la cara superior 180 grados',
+            'D': 'Gira la cara inferior en sentido horario', "D'": 'Gira la cara inferior en sentido antihorario', 'D2': 'Gira la cara inferior 180 grados',
+            'F': 'Gira la cara frontal en sentido horario', "F'": 'Gira la cara frontal en sentido antihorario', 'F2': 'Gira la cara frontal 180 grados',
+            'B': 'Gira la cara trasera en sentido horario', "B'": 'Gira la cara trasera en sentido antihorario', 'B2': 'Gira la cara trasera 180 grados'
+          };
+          moveDesc.textContent = `${move}: ${descriptions[move] || `Movimiento: ${move}`}`;
+        } else if (moveSequence.length > 0) {
+          const nextMove = moveSequence[currentMoveIndex + 1];
+          if (nextMove) {
+            moveDesc.textContent = `Siguiente: ${nextMove}`;
+          } else {
+            moveDesc.textContent = 'Secuencia completada';
+          }
+        } else {
+          moveDesc.textContent = 'Presiona "Cargar Secuencia" para comenzar';
+        }
+      }
+      function configureCube(options = {}) {
+        if (options.animationSpeed) animationDuration = options.animationSpeed;
+      }
+      window.RubikCube = {
+        loadSequence, nextMove, previousMove, resetCube, togglePause,
+        configureCube, setAnimationSpeed: (speed) => { animationDuration = speed; },
+        isAnimating: () => isAnimating, getCurrentStep: () => currentMoveIndex + 1,
+        getTotalSteps: () => moveSequence.length
+      };
+
+      // Render
+      function render() { requestAnimationFrame(render); renderer.render(scene, camera); }
+      render();
+
+      // Listeners UI
+      document.getElementById('next-btn').addEventListener('click', nextMove);
+      document.getElementById('prev-btn').addEventListener('click', previousMove);
+      document.getElementById('reset-btn').addEventListener('click', resetCube);
+      document.getElementById('pause-btn').addEventListener('click', togglePause);
+      document.getElementById('load-sequence-btn').addEventListener('click', () => {
+        const sequences = [
+          ["R", "U'", "F", "L2", "D"],
+          ["R", "U", "R'", "F", "R", "F'"],
+          ["F", "R", "U'", "R'", "U'", "R", "U", "R'", "F'"],
+          ["R", "U", "R'", "U", "R", "U2", "R'"]
+        ];
+        const randomSequence = sequences[Math.floor(Math.random() * sequences.length)];
+        loadSequence(randomSequence);
+      });
+      const speedSlider = document.getElementById('speed-slider');
+      const speedValue = document.getElementById('speed-value');
+      speedSlider.addEventListener('input', (e) => {
+        animationDuration = parseInt(e.target.value);
+        speedValue.textContent = `${animationDuration}ms`;
+      });
+      window.addEventListener("keydown", (e) => {
+        if (e.key === " ") {
+          e.preventDefault();
+          if (moveSequence.length === 0) loadSequence(["R", "U'", "F", "L2", "D"]);
+          else nextMove();
+        } else if (e.key === "ArrowRight") { e.preventDefault(); nextMove(); }
+        else if (e.key === "ArrowLeft")  { e.preventDefault(); previousMove(); }
+        else if (e.key === "Escape")     { e.preventDefault(); resetCube(); }
+        else if (e.key === "p" || e.key === "P") { e.preventDefault(); togglePause(); }
+      });
+
+      // Importante: iniciar en gris para el flujo manual
+      setAllGray();
+      // Nota: resolver.html volverá a invocar setAllGray + aplicarColoresDeMatriz cuando cargue.
+    </script>
+  </body>
+</html>

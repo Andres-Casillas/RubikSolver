@@ -6,7 +6,6 @@
   <title>Resolver Cubo 3x3</title>
   <link rel="stylesheet" href="css/resolver.css" />
   <link rel="stylesheet" href="css/Nav.css" />
-
 </head>
 <body>
   <div id="navbar"></div>
@@ -19,24 +18,151 @@
       <canvas id="canvasOutput" style="width: 95%;"></canvas>
     </div>
 
-    <div class="modelo3d-placeholder">
-      <p>Modelo 3D del cubo (futuro)</p>
+    <div class="modelo3d-placeholder" style="width: 100%; position: relative;">
+      <!-- Modo embed: oculta UI interna del 3D -->
+      <iframe id="iframe3d" src="./Cubo3D.html?embed=1" style="width: 100%; height: 100%; border: 0;"></iframe>
+    </div>
+  </div>
+
+  <!-- Controles externos del cubo 3D -->
+  <div class="controles-3d">
+    <button type="button" id="btn3dPrev"  class="boton mini secundario">⬅️ Anterior</button>
+    <button type="button" id="btn3dNext"  class="boton mini secundario">Siguiente ➡️</button>
+    <button type="button" id="btn3dReset" class="boton mini secundario">🔄 Reiniciar</button>
+    <button type="button" id="btn3dPause" class="boton mini secundario">⏸️ Pausar</button>
+    <button type="button" id="btn3dLoad"  class="boton mini secundario">📝 Cargar Secuencia</button>
+    <div class="slider">
+      <label for="speed3d">Velocidad:</label>
+      <input type="range" id="speed3d" min="100" max="1000" value="300" step="50" />
+      <span id="speed3dValue">300ms</span>
     </div>
   </div>
 
   <div class="botones">
     <button type="button" id="siguiente" class="boton secundario">Siguiente</button>
     <button type="button" id="guardar" class="boton deshabilitado">Guardar</button>
+
+    <button type="button" id="cargarManual3D" class="boton secundario">Cargar desde Manual</button>
+    <button type="button" id="limpiarColores" class="boton secundario">Limpiar colores</button>
+
     <a href="Manual.html"><button type="button" class="boton secundario">Agregar manualmente</button></a>
     <a href="Menu.html"><button type="button" class="boton secundario">Regresar</button></a>
     <a href="Entrenamiento.html"><button type="button" class="boton secundario">Entrenamiento</button></a>
   </div>
 
-  
-  <!-- Carga OpenCV.js desde CDN oficial -->
+  <!-- Módulos locales -->
+  <script type="module" src="java/script.js"></script>
+  <script type="module" src="java/Nav.js"></script>
+
+  <!-- OpenCV al final -->
   <script async src="https://docs.opencv.org/4.10.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
-  <script type="module" src="/java/script.js"></script>
-  <script type="module" src="/java/Nav.js"></script>
+
+  <!-- Integración Manual -> 3D + Controles externos -->
+  <script>
+    const STORAGE_KEYS = { matrix3D: 'rubik.manualMatrix3D' };
+    const iframe = document.getElementById('iframe3d');
+
+    function applyMatrixTo3D(matrix) {
+      if (!iframe || !iframe.contentWindow) return;
+      const win = iframe.contentWindow;
+      const tryApply = () => {
+        try {
+          if (win.CubeDebug) {
+            if (!matrix && typeof win.CubeDebug.setAllGray === 'function') {
+              win.CubeDebug.setAllGray();
+              console.log('🎨 Cubo puesto en gris desde resolver.html');
+              return true;
+            }
+            if (matrix && typeof win.CubeDebug.aplicarColoresDeMatriz === 'function') {
+              win.CubeDebug.aplicarColoresDeMatriz(matrix);
+              console.log('✅ Matriz aplicada al cubo 3D desde resolver.html');
+              return true;
+            }
+          }
+        } catch (e) {}
+        return false;
+      };
+      if (!tryApply()) {
+        const interval = setInterval(() => { if (tryApply()) clearInterval(interval); }, 200);
+        setTimeout(() => clearInterval(interval), 10000);
+      }
+    }
+
+    function greyMatrix() {
+      return Array.from({ length: 6 }, () =>
+        Array.from({ length: 3 }, () => Array(3).fill('N'))
+      );
+    }
+
+    function clearSavedMatrix() {
+      localStorage.removeItem(STORAGE_KEYS.matrix3D);
+      sessionStorage.removeItem(STORAGE_KEYS.matrix3D);
+      applyMatrixTo3D(greyMatrix());
+      console.log('🧽 Colores guardados eliminados. Cubo en gris.');
+    }
+
+    function whenCubeReady(cb, timeout = 8000) {
+      const start = performance.now();
+      (function wait() {
+        const api = iframe?.contentWindow?.RubikCube;
+        if (api) return cb(api);
+        if (performance.now() - start > timeout) return console.warn('⏱️ RubikCube API no disponible a tiempo');
+        setTimeout(wait, 150);
+      })();
+    }
+
+    iframe.addEventListener('load', () => {
+      // Inicio siempre en gris
+      applyMatrixTo3D(greyMatrix());
+
+      // Inicializar controles externos
+      whenCubeReady((api) => {
+        const speedInput = document.getElementById('speed3d');
+        const speedValue = document.getElementById('speed3dValue');
+        const setSpeed = (v) => { api.setAnimationSpeed(v); speedValue.textContent = `${v}ms`; };
+        setSpeed(parseInt(speedInput.value, 10));
+        speedInput.addEventListener('input', (e) => setSpeed(parseInt(e.target.value, 10)));
+
+        document.getElementById('btn3dNext').addEventListener('click', () => api.nextMove());
+        document.getElementById('btn3dPrev').addEventListener('click', () => api.previousMove());
+        document.getElementById('btn3dReset').addEventListener('click', () => api.resetCube());
+        document.getElementById('btn3dPause').addEventListener('click', (ev) => {
+          api.togglePause();
+          ev.currentTarget.textContent = /Continuar/.test(ev.currentTarget.textContent) ? '⏸️ Pausar' : '▶️ Continuar';
+        });
+        document.getElementById('btn3dLoad').addEventListener('click', () => {
+          const sequences = [
+            ["R", "U'", "F", "L2", "D"],
+            ["R", "U", "R'", "F", "R", "F'"],
+            ["F", "R", "U'", "R'", "U'", "R", "U", "R'", "F'"],
+            ["R", "U", "R'", "U", "R", "U2", "R'"]
+          ];
+          api.loadSequence(sequences[Math.floor(Math.random() * sequences.length)]);
+        });
+      });
+    });
+
+    // Botones Manual/localStorage
+    document.getElementById('cargarManual3D').addEventListener('click', () => {
+      const raw = localStorage.getItem(STORAGE_KEYS.matrix3D);
+      if (!raw) return alert('No hay datos manuales guardados. Ve a "Agregar manualmente".');
+      try { applyMatrixTo3D(JSON.parse(raw)); }
+      catch { alert('Error al cargar la matriz manual guardada.'); }
+    });
+
+    document.getElementById('limpiarColores').addEventListener('click', () => clearSavedMatrix());
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === STORAGE_KEYS.matrix3D && e.newValue) {
+        try {
+          const matrix = JSON.parse(e.newValue);
+          applyMatrixTo3D(matrix);
+          console.log('🔄 Matriz actualizada desde otra pestaña.');
+        } catch (err) {
+          console.warn('No se pudo parsear e.newValue:', err);
+        }
+      }
+    });
+  </script>
 </body>
 </html>
-
