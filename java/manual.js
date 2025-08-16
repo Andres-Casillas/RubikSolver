@@ -1,50 +1,43 @@
-manual.js
-
 import { rotarMatriz } from './utils.js';
 import { conexionPython } from './utils.js';
 
-// Claves de sessionStorage
+// Claves
 const STORAGE_KEYS = {
-  working: 'rubik.manualWorking',
-  matrix3D: 'rubik.manualMatrix3D',
+  working: 'rubik.manualWorking',       // progreso por pestaña
+  matrix3D: 'rubik.manualMatrix3D',     // matriz compartida entre pestañas
 };
 
 let colorSeleccionado = null;
 let caraActual = 0;
 
-// Matriz interna del flujo manual (6 caras x 3x3), inicializada en 'N'
+// Matriz interna (6 caras x 3x3) inicializada en 'N'
 let matriz = Array.from({ length: 6 }, () =>
   Array.from({ length: 3 }, () => Array(3).fill('N'))
 );
 
-/**
- * Convierte la matriz interna (orden flujo manual) al orden 3D [U,F,D,B,L,R]
- */
+// Construye matriz para 3D en orden [U,F,D,B,L,R]
 function buildMatrixFor3D(m) {
-  // m[0]=Frontal, 1=Derecha, 2=Posterior, 3=Izquierda, 4=Superior, 5=Inferior
+  // m[0]=F, 1=R, 2=B, 3=L, 4=U, 5=D
   const cubo = [];
-  // U, F, D, B, L, R
-  cubo[0] = rotarMatriz(m[4], 'horario');      // U (Superior) rotada horario
-  cubo[1] = m[0];                               // F (Frontal)
-  cubo[2] = rotarMatriz(m[5], 'antihorario');   // D (Inferior) rotada antihorario
-  cubo[3] = rotarMatriz(m[2], 'espejo');        // B (Posterior) espejo
-  cubo[4] = m[3];                               // L (Izquierda)
-  cubo[5] = m[1];                               // R (Derecha)
+  cubo[0] = rotarMatriz(m[4], 'horario');      // U
+  cubo[1] = m[0];                               // F
+  cubo[2] = rotarMatriz(m[5], 'antihorario');   // D
+  cubo[3] = rotarMatriz(m[2], 'espejo');        // B
+  cubo[4] = m[3];                               // L
+  cubo[5] = m[1];                               // R
   return cubo;
 }
 
+// Persistir progreso (por pestaña)
 function persistWorkingState() {
-  const payload = {
-    matriz,
-    caraActual,
-    lastUpdatedAt: new Date().toISOString(),
-  };
+  const payload = { matriz, caraActual, lastUpdatedAt: new Date().toISOString() };
   sessionStorage.setItem(STORAGE_KEYS.working, JSON.stringify(payload));
 }
 
+// Persistir matriz para 3D (compartida entre pestañas)
 function persistMatrix3D() {
   const matrix3D = buildMatrixFor3D(matriz);
-  sessionStorage.setItem(STORAGE_KEYS.matrix3D, JSON.stringify(matrix3D));
+  localStorage.setItem(STORAGE_KEYS.matrix3D, JSON.stringify(matrix3D));
 }
 
 function restoreWorkingState() {
@@ -66,9 +59,7 @@ document.querySelectorAll('.color').forEach(div => {
   div.addEventListener('click', () => {
     colorSeleccionado = div.dataset.color;
     div.classList.add('seleccion');
-    document.querySelectorAll('.color').forEach(d => {
-      if (d !== div) d.classList.remove('seleccion');
-    });
+    document.querySelectorAll('.color').forEach(d => { if (d !== div) d.classList.remove('seleccion'); });
   });
 });
 
@@ -85,7 +76,8 @@ function reiniciarCubo() {
   caraActual = 0;
 
   sessionStorage.removeItem(STORAGE_KEYS.working);
-  sessionStorage.removeItem(STORAGE_KEYS.matrix3D);
+  // Importante: la matriz compartida vive en localStorage
+  localStorage.removeItem(STORAGE_KEYS.matrix3D);
 
   actualizarCara();
 }
@@ -99,28 +91,25 @@ document.querySelectorAll('.casilla').forEach(casilla => {
   });
 });
 
-/**
- * Guarda la cara visible en matriz[caraActual] y persiste en sessionStorage
- */
+// Guarda la cara visible en matriz[caraActual] y persiste
 function guardarCara() {
   const casillas = document.querySelectorAll('.casilla');
-  let cara = [];
+  const cara = [];
   for (let i = 0; i < 3; i++) {
-    let fila = [];
+    const fila = [];
     for (let j = 0; j < 3; j++) {
-      const index = i * 3 + j;
-      const letra = casillas[index].dataset.color || 'N';
-      fila.push(letra);
+      const idx = i * 3 + j;
+      fila.push(casillas[idx].dataset.color || 'N');
     }
     cara.push(fila);
   }
   matriz[caraActual] = cara;
 
-  // Persistir avance y matriz 3D en cada guardado
+  // Persistir progreso (pestaña) y matriz compartida (todas las pestañas)
   persistWorkingState();
   persistMatrix3D();
 
-  // Habilitar envío al servidor si ya no hay 'N'
+  // Si ya no hay 'N', habilitar Guardar (flujo existente)
   const incompletas = matriz.some(bloque => bloque.some(fila => fila.includes('N')));
   if (!incompletas) {
     const btnGuardar = document.getElementById('guardar');
@@ -171,30 +160,21 @@ document.getElementById('reiniciar').addEventListener('click', () => {
 
 document.getElementById('siguiente').addEventListener('click', () => {
   guardarCara();
-  if (caraActual < 5) caraActual++;
-  else caraActual = 0;
+  caraActual = (caraActual + 1) % 6;
   persistWorkingState();
   cargarCara(caraActual);
 });
 
 document.getElementById('anterior').addEventListener('click', () => {
   guardarCara();
-  if (caraActual > 0) caraActual--;
-  else caraActual = 5;
+  caraActual = (caraActual + 5) % 6;
   persistWorkingState();
   cargarCara(caraActual);
 });
 
 function actualizarCara() {
   const etiqueta = document.getElementById('cara');
-  switch (caraActual) {
-    case 0: etiqueta.innerText = 'Cara Frontal'; break;
-    case 1: etiqueta.innerText = 'Cara Derecha'; break;
-    case 2: etiqueta.innerText = 'Cara Posterior'; break;
-    case 3: etiqueta.innerText = 'Cara Izquierda'; break;
-    case 4: etiqueta.innerText = 'Cara Superior'; break;
-    case 5: etiqueta.innerText = 'Cara Inferior'; break;
-  }
+  etiqueta.innerText = ['Cara Frontal','Cara Derecha','Cara Posterior','Cara Izquierda','Cara Superior','Cara Inferior'][caraActual];
 }
 
 // Inicializar
