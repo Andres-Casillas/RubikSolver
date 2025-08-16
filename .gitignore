@@ -3,4 +3,7 @@ __pycache__/
 *.pyc
 
 # OS
+.DS_Storepycache/
+*.pyc
 .DS_Store
+
