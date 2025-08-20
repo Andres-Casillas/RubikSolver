@@ -1,182 +1,171 @@
 import { rotarMatriz } from './utils.js';
 import { conexionPython } from './utils.js';
 
-// Claves
-const STORAGE_KEYS = {
-  working: 'rubik.manualWorking',       // progreso por pestaña
-  matrix3D: 'rubik.manualMatrix3D',     // matriz compartida entre pestañas
-};
-
 let colorSeleccionado = null;
 let caraActual = 0;
-
-// Matriz interna (6 caras x 3x3) inicializada en 'N'
 let matriz = Array.from({ length: 6 }, () =>
-  Array.from({ length: 3 }, () => Array(3).fill('N'))
+    Array.from({ length: 3 }, () => Array(3).fill('N'))
 );
 
-// Construye matriz para 3D en orden [U,F,D,B,L,R]
-function buildMatrixFor3D(m) {
-  // m[0]=F, 1=R, 2=B, 3=L, 4=U, 5=D
-  const cubo = [];
-  cubo[0] = rotarMatriz(m[4], 'horario');      // U
-  cubo[1] = m[0];                               // F
-  cubo[2] = rotarMatriz(m[5], 'antihorario');   // D
-  cubo[3] = rotarMatriz(m[2], 'espejo');        // B
-  cubo[4] = m[3];                               // L
-  cubo[5] = m[1];                               // R
-  return cubo;
-}
+function contarColores() {
+    const colores = ['W', 'R', 'G', 'B', 'O', 'Y'];
+    const conteo = { W: 0, R: 0, G: 0, B: 0, O: 0, Y: 0 };
 
-// Persistir progreso (por pestaña)
-function persistWorkingState() {
-  const payload = { matriz, caraActual, lastUpdatedAt: new Date().toISOString() };
-  sessionStorage.setItem(STORAGE_KEYS.working, JSON.stringify(payload));
-}
-
-// Persistir matriz para 3D (compartida entre pestañas)
-function persistMatrix3D() {
-  const matrix3D = buildMatrixFor3D(matriz);
-  localStorage.setItem(STORAGE_KEYS.matrix3D, JSON.stringify(matrix3D));
-}
-
-function restoreWorkingState() {
-  const raw = sessionStorage.getItem(STORAGE_KEYS.working);
-  if (!raw) return;
-  try {
-    const data = JSON.parse(raw);
-    if (Array.isArray(data.matriz) && typeof data.caraActual === 'number') {
-      matriz = data.matriz;
-      caraActual = data.caraActual;
-      cargarCara(caraActual);
+    for (let cara of matriz) {
+        for (let fila of cara) {
+            for (let color of fila) {
+                if (colores.includes(color)) {
+                    conteo[color]++;
+                }
+            }
+        }
     }
-  } catch (e) {
-    console.warn('No se pudo restaurar el progreso manual:', e);
-  }
+
+    const casillas = document.querySelectorAll('.casilla');
+    casillas.forEach(casilla => {
+        const color = casilla.dataset.color;
+        if (colores.includes(color)) {
+            conteo[color]++;
+        }
+    });
+
+    for (const color of colores) {
+        if (conteo[color] >= 9) {
+            console.warn(`¡El color ${color} ha alcanzado ${conteo[color]} casillas!`);
+        }
+    }
 }
 
 document.querySelectorAll('.color').forEach(div => {
-  div.addEventListener('click', () => {
-    colorSeleccionado = div.dataset.color;
-    div.classList.add('seleccion');
-    document.querySelectorAll('.color').forEach(d => { if (d !== div) d.classList.remove('seleccion'); });
-  });
+    div.addEventListener('click', () => {
+        colorSeleccionado = div.dataset.color;
+        div.classList.add('seleccion');
+        document.querySelectorAll('.color').forEach(d => {
+            if (d !== div) d.classList.remove('seleccion');
+        });
+    });
 });
 
 function reiniciarCubo() {
-  const casillas = document.querySelectorAll('.casilla');
-  casillas.forEach(c => {
-    c.classList.remove('W', 'R', 'G', 'B', 'O', 'Y');
-    c.dataset.color = 'N';
-  });
-
-  matriz = Array.from({ length: 6 }, () =>
-    Array.from({ length: 3 }, () => Array(3).fill('N'))
-  );
-  caraActual = 0;
-
-  sessionStorage.removeItem(STORAGE_KEYS.working);
-  // Importante: la matriz compartida vive en localStorage
-  localStorage.removeItem(STORAGE_KEYS.matrix3D);
-
-  actualizarCara();
+    const casillas = document.querySelectorAll('.casilla');
+    casillas.forEach(c => {
+        c.classList.remove('W', 'R', 'G', 'B', 'O', 'Y')
+        c.dataset.color = 'N';
+    });
 }
 
 document.querySelectorAll('.casilla').forEach(casilla => {
-  casilla.addEventListener('click', () => {
-    if (!colorSeleccionado) return;
-    casilla.classList.remove('W', 'R', 'G', 'B', 'O', 'Y', 'N');
-    casilla.classList.add(colorSeleccionado);
-    casilla.dataset.color = colorSeleccionado;
-  });
+    casilla.addEventListener('click', () => {
+        if (!colorSeleccionado) {
+            console.warn('No se ha seleccionado ningún color aún');
+            return;
+        }
+        casilla.classList.remove('W', 'R', 'G', 'B', 'O', 'Y', 'N');
+        casilla.classList.add(colorSeleccionado);
+        casilla.dataset.color = colorSeleccionado;
+
+        contarColores();
+    });
 });
 
-// Guarda la cara visible en matriz[caraActual] y persiste
 function guardarCara() {
-  const casillas = document.querySelectorAll('.casilla');
-  const cara = [];
-  for (let i = 0; i < 3; i++) {
-    const fila = [];
-    for (let j = 0; j < 3; j++) {
-      const idx = i * 3 + j;
-      fila.push(casillas[idx].dataset.color || 'N');
+    const casillas = document.querySelectorAll('.casilla');
+    let cara = [];
+
+    for (let i = 0; i < 3; i++) {
+        let fila = [];
+        for (let j = 0; j < 3; j++) {
+            const index = i * 3 + j;
+            const letra = casillas[index].dataset.color || 'N';
+            fila.push(letra);
+        }
+        cara.push(fila);
     }
-    cara.push(fila);
-  }
-  matriz[caraActual] = cara;
 
-  // Persistir progreso (pestaña) y matriz compartida (todas las pestañas)
-  persistWorkingState();
-  persistMatrix3D();
+    matriz[caraActual] = cara;
 
-  // Si ya no hay 'N', habilitar Guardar (flujo existente)
-  const incompletas = matriz.some(bloque => bloque.some(fila => fila.includes('N')));
-  if (!incompletas) {
-    const btnGuardar = document.getElementById('guardar');
-    btnGuardar.classList.remove('deshabilitado');
-    btnGuardar.addEventListener('click', () => {
-      const cubo = [];
-      cubo[0] = matriz[4];
-      cubo[1] = matriz[0];
-      cubo[2] = matriz[5];
-      cubo[3] = matriz[2];
-      cubo[4] = matriz[3];
-      cubo[5] = matriz[1];
+    const existe = matriz.some(bloque =>
+        bloque.some(fila =>
+            fila.includes('N')
+        )
+    );
+    if (!existe) {
+        document.getElementById('guardar').classList.remove('deshabilitado');
+        document.getElementById('guardar').addEventListener('click', () => {
+            const cubo = [];
+            cubo[0] = matriz[4];
+            cubo[1] = matriz[0];
+            cubo[2] = matriz[5];
+            cubo[3] = matriz[2];
+            cubo[4] = matriz[3];
+            cubo[5] = matriz[1];
 
-      cubo[0] = rotarMatriz(cubo[0], 'horario');
-      cubo[2] = rotarMatriz(cubo[2], 'antihorario');
-      cubo[3] = rotarMatriz(cubo[3], 'espejo');
+            cubo[0] = rotarMatriz(cubo[0], "horario");
+            cubo[2] = rotarMatriz(cubo[2], "antihorario");
+            cubo[3] = rotarMatriz(cubo[3], "espejo");
 
-      conexionPython(cubo);
-    }, { once: true });
-  }
+            conexionPython(cubo);
+        });
+    }
 }
 
 function cargarCara(index) {
-  actualizarCara();
+    actualizarCara();
+    reiniciarCubo();
+    const casillas = document.querySelectorAll('.casilla');
+    const cara = matriz[index];
 
-  const casillas = document.querySelectorAll('.casilla');
-  const cara = matriz[index];
-
-  for (let k = 0; k < casillas.length; k++) {
-    casillas[k].classList.remove('W', 'R', 'G', 'B', 'O', 'Y', 'N');
-    casillas[k].dataset.color = 'N';
-  }
-
-  for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-      const idx = i * 3 + j;
-      const color = cara[i][j];
-      if (color && color !== 'N') casillas[idx].classList.add(color);
-      casillas[idx].dataset.color = color || 'N';
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            const idx = i * 3 + j;
+            const color = cara[i][j];
+            casillas[idx].classList.add(color);
+            casillas[idx].dataset.color = color;
+        }
     }
-  }
 }
 
 document.getElementById('reiniciar').addEventListener('click', () => {
-  reiniciarCubo();
-  colorSeleccionado = null;
+    reiniciarCubo();
+    colorSeleccionado = null;
+    caraActual = 0;
 });
 
 document.getElementById('siguiente').addEventListener('click', () => {
-  guardarCara();
-  caraActual = (caraActual + 1) % 6;
-  persistWorkingState();
-  cargarCara(caraActual);
+    guardarCara();
+    if (caraActual < 5) {
+        caraActual++;
+    } else { caraActual = 0; }
+    cargarCara(caraActual);
 });
 
 document.getElementById('anterior').addEventListener('click', () => {
-  guardarCara();
-  caraActual = (caraActual + 5) % 6;
-  persistWorkingState();
-  cargarCara(caraActual);
+    guardarCara();
+    if (caraActual > 0) caraActual--;
+    else caraActual = 5;
+    cargarCara(caraActual);
 });
 
 function actualizarCara() {
-  const etiqueta = document.getElementById('cara');
-  etiqueta.innerText = ['Cara Frontal','Cara Derecha','Cara Posterior','Cara Izquierda','Cara Superior','Cara Inferior'][caraActual];
+    switch (caraActual) {
+        case 0:
+            document.getElementById('cara').innerText = 'Cara Frontal';
+            break;
+        case 1:
+            document.getElementById('cara').innerText = 'Cara Derecha';
+            break;
+        case 2:
+            document.getElementById('cara').innerText = 'Cara Posterior';
+            break;
+        case 3:
+            document.getElementById('cara').innerText = 'Cara Izquierda';
+            break;
+        case 4:
+            document.getElementById('cara').innerText = 'Cara Superior';
+            break;
+        case 5:
+            document.getElementById('cara').innerText = 'Cara Inferior';
+            break;
+    }
 }
-
-// Inicializar
 actualizarCara();
-restoreWorkingState();

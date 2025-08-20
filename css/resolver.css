@@ -26,7 +26,7 @@ h1 {
   flex-wrap: wrap;
   gap: 1.5rem;
   justify-content: center;
-  margin-bottom: 0.75rem; /* más compacto para controles 3D */
+  margin-bottom: 2rem;
   width: 100%;
   max-width: 900px;
 }
@@ -46,30 +46,6 @@ h1 {
   padding: 1rem;
 }
 
-/* Nueva fila de controles 3D */
-.controles-3d {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: 900px;
-  margin: 0.25rem 0 1.25rem;
-}
-
-.controles-3d .slider {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: #cbd5e1;
-  font-size: 0.9rem;
-}
-
-.controles-3d input[type="range"] {
-  width: 160px;
-}
-
 .botones {
   display: flex;
   gap: 1rem;
@@ -86,12 +62,6 @@ h1 {
   font-weight: bold;
   transition: background-color 0.2s ease;
   border: none;
-}
-
-.boton.mini {
-  padding: 0.45rem 0.8rem;
-  font-size: 0.9rem;
-  border-radius: 6px;
 }
 
 .deshabilitado {
