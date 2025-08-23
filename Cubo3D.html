@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cubo Rubik 3×3 — Three.js</title>
+    <style>
+      body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+      #info { position: absolute; top: 10px; left: 10px; color: #fff; background: rgba(0,0,0,.7); padding: 10px; border-radius: 8px; max-width: 400px; font-size: 14px; }
+      #controls { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; background: rgba(0,0,0,.8); padding: 12px; border-radius: 10px; align-items: center; }
+      .control-btn { background: #4CAF50; border: none; color: #fff; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+      .control-btn:disabled { background: #666; cursor: not-allowed; }
+      #speed-control { color: #fff; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <div id="info">
+      <div>🎮 <strong>Cubo Rubik 3×3 Interactivo</strong></div>
+      <div id="step-info">Listo para comenzar</div>
+      <div id="move-description">Presiona un botón para comenzar</div>
+    </div>
+
+    <div id="controls">
+      <button class="control-btn" id="prev-btn" disabled>⬅️ Anterior</button>
+      <button class="control-btn" id="next-btn" disabled>Siguiente ➡️</button>
+      <button class="control-btn" id="reset-btn">🔄 Reiniciar</button>
+      <button class="control-btn" id="pause-btn" disabled>⏸️ Pausar</button>
+      <button class="control-btn" id="load-sequence-btn">📝 Cargar Secuencia</button>
+      <div id="speed-control">
+        Velocidad: <input type="range" id="speed-slider" min="100" max="1000" value="300" step="50">
+        <span id="speed-value">300ms</span>
+      </div>
+    </div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.156.0/build/three.module.js",
+          "three/controls/OrbitControls.js": "https://cdn.jsdelivr.net/npm/three@0.156.0/examples/jsm/controls/OrbitControls.js"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from "three";
+      import { OrbitControls } from "three/controls/OrbitControls.js";
+
+      // Ajustes
+      const DEBUG = false;
+      const ORIENT_B = 'alt'; // variante que corrige la cara B
+
+      // Escena
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0f0f13);
+      const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+      camera.position.set(4, 4, 6);
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.shadowMap.enabled = true;
+      document.body.appendChild(renderer.domElement);
+      new OrbitControls(camera, renderer.domElement);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+      const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+      dir.position.set(5, 5, 5);
+      dir.castShadow = true;
+      scene.add(dir);
+
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(20, 20),
+        new THREE.MeshLambertMaterial({ color: 0x808080, transparent: true, opacity: 0.25 })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -2;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      // Utils
+      const epsilon = 0.001;
+      const isClose = (a, b) => Math.abs(a - b) < epsilon;
+
+      // Parámetros cubo
+      const cubieSize = 0.95;
+      const gap = 0.1;
+      const spacing = cubieSize + gap;
+      let animationDuration = 300;
+      const DEFAULT_GRAY = 0x222222;
+
+      const COLOR_MAP = { W: 0xffffff, R: 0xcc0000, Y: 0xffd700, O: 0xff6600, G: 0x00aa00, B: 0x0066cc, N: DEFAULT_GRAY };
+      const FACE_INDEX = { U:0, F:1, D:2, B:3, L:4, R:5 };
+
+      // Estado lógico [U,F,D,B,L,R]
+      let cubeState = null;
+
+      // Índices discretos
+      function idx(c) { return c + 1; }       // -1,0,1 -> 0,1,2
+      function invIdx(c) { return 2 - (c + 1); }
+
+      // rc mapeos
+      function rcForU(x, y, z) { return [idx(z), idx(x)]; }
+      function rcForD(x, y, z) { return [invIdx(z), idx(x)]; }
+      function rcForF(x, y, z) { return [invIdx(y), idx(x)]; }
+      function rcForB_base(x, y, z) { return [invIdx(y), invIdx(x)]; }
+      function rcForB_alt (x, y, z) { return [invIdx(y), idx(x)]; }
+      function rcForL(x, y, z) { return [invIdx(y), idx(z)]; }
+      function rcForR(x, y, z) { return [invIdx(y), invIdx(z)]; }
+      const rcForB = (ORIENT_B === 'alt') ? rcForB_alt : rcForB_base;
+      const RC = { U: rcForU, F: rcForF, D: rcForD, B: rcForB, L: rcForL, R: rcForR };
+
+      function normalizeFaces(caras) {
+        const out = {};
+        const names = ['U','F','D','B','L','R'];
+        for (const name of names) {
+          const face = caras[name];
+          if (!face) { out[name] = Array.from({length:3},()=>Array(3).fill('N')); continue; }
+          const center = face?.[1]?.[1] || 'W';
+          out[name] = face.map(row => row.map(v => (v && v !== 'N') ? v : center));
+        }
+        return out;
+      }
+
+      function paintFromFaces(caras) {
+        const faces = normalizeFaces(caras);
+        cubies.forEach(cubie => {
+          const [x, y, z] = cubie.userData.cubePos;
+          cubie.material.forEach((material, faceIndex) => {
+            let hex = DEFAULT_GRAY;
+            // Orden Three.js: 0:+X (R), 1:-X (L), 2:+Y (U), 3:-Y (D), 4:+Z (F), 5:-Z (B)
+            if (faceIndex === 2 && isClose(y, 1)) {
+              const [r,c] = rcForU(x,y,z); hex = COLOR_MAP[faces.U?.[r]?.[c] ?? 'N'] ?? DEFAULT_GRAY;
+            } else if (faceIndex === 3 && isClose(y, -1)) {
+              const [r,c] = rcForD(x,y,z); hex = COLOR_MAP[faces.D?.[r]?.[c] ?? 'N'] ?? DEFAULT_GRAY;
+            } else if (faceIndex === 4 && isClose(z, 1)) {
+              const [r,c] = rcForF(x,y,z); hex = COLOR_MAP[faces.F?.[r]?.[c] ?? 'N'] ?? DEFAULT_GRAY;
+            } else if (faceIndex === 5 && isClose(z, -1)) {
+              const [r,c] = rcForB(x,y,z); hex = COLOR_MAP[faces.B?.[r]?.[c] ?? 'N'] ?? DEFAULT_GRAY;
+            } else if (faceIndex === 1 && isClose(x, -1)) {
+              const [r,c] = rcForL(x,y,z); hex = COLOR_MAP[faces.L?.[r]?.[c] ?? 'N'] ?? DEFAULT_GRAY;
+            } else if (faceIndex === 0 && isClose(x, 1)) {
+              const [r,c] = rcForR(x,y,z); hex = COLOR_MAP[faces.R?.[r]?.[c] ?? 'N'] ?? DEFAULT_GRAY;
+            }
+            material.color.setHex(hex);
+            material.transparent = false;
+            material.opacity = 1.0;
+            material.depthWrite = true;
+            material.depthTest = true;
+          });
+        });
+      }
+
+      function repaintFromState() {
+        if (!cubeState) return;
+        const caras = { U: cubeState[0], F: cubeState[1], D: cubeState[2], B: cubeState[3], L: cubeState[4], R: cubeState[5] };
+        paintFromFaces(caras);
+      }
+
+      class Cubie extends THREE.Mesh {
+        constructor(pos, size) {
+          super();
+          this.geometry = new THREE.BoxGeometry(size, size, size);
+          const mats = [];
+          for (let i = 0; i < 6; i++) mats.push(new THREE.MeshLambertMaterial({ color: 0x111111 }));
+          this.material = mats;
+
+          const edges = new THREE.EdgesGeometry(this.geometry);
+          this.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000 })));
+
+          this.position.set(pos[0] * spacing, pos[1] * spacing, pos[2] * spacing);
+          this.rotation.set(0,0,0);
+          this.userData.cubePos = [...pos];
+          this.castShadow = true;
+          this.receiveShadow = true;
+        }
+      }
+
+      // Construcción (26 piezas)
+      const cubies = [];
+      for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
+          for (let z = -1; z <= 1; z++) {
+            if (x === 0 && y === 0 && z === 0) continue;
+            const c = new Cubie([x, y, z], cubieSize);
+            scene.add(c); cubies.push(c);
+          }
+        }
+      }
+
+      function setAllGray() {
+        cubies.forEach(cubie => {
+          cubie.material.forEach(mat => {
+            mat.color.setHex(DEFAULT_GRAY);
+            mat.transparent = false;
+            mat.opacity = 1.0;
+          });
+        });
+        if (DEBUG) console.log('🎨 setAllGray aplicado');
+      }
+
+      // Secuencias y animación
+      let moveSequence = [];
+      let currentMoveIndex = -1;
+      let isAnimating = false;
+      let isPaused = false;
+      let animationId = null;
+
+      // Signos por cara (alineado con notación)
+      const FACE_SIGN = { U: 1, D: -1, F: 1, B: -1, L: -1, R: 1 };
+
+      function parseMove(move) {
+        const face = move[0];
+        const primed = move.includes("'");
+        const double = move.includes("2");
+
+        const axisMap = { U: "y", D: "y", F: "z", B: "z", L: "x", R: "x" };
+        const layerMap = {
+          U: (p) => isClose(p[1], 1),
+          D: (p) => isClose(p[1], -1),
+          F: (p) => isClose(p[2], 1),
+          B: (p) => isClose(p[2], -1),
+          L: (p) => isClose(p[0], -1),
+          R: (p) => isClose(p[0], 1),
+        };
+
+        const quarterTurns = double ? 2 : 1;
+        const dir = primed ? -1 : 1;
+        const angle = quarterTurns * dir * (FACE_SIGN[face] ?? 1);
+
+        if (DEBUG) console.log(`parseMove ${move}: axis=${axisMap[face]} angle(q)=${angle}`);
+        return { face, axis: axisMap[face], layerFilter: layerMap[face], angle };
+      }
+
+      function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+      function rotatePosQuarter(pos, axis, sign) {
+        let [x, y, z] = pos;
+        if (axis === 'x') {
+          const ny = -sign * z;
+          const nz =  sign * y;
+          return [x, ny, nz];
+        } else if (axis === 'y') {
+          const nx =  sign * z;
+          const nz = -sign * x;
+          return [nx, y, nz];
+        } else {
+          const nx = -sign * y;
+          const ny =  sign * x;
+          return [nx, ny, z];
+        }
+      }
+      const roundToLattice = (v) => Math.max(-1, Math.min(1, Math.round(v)));
+
+      function updateCubiePositions(affected, axis, angleSteps) {
+        const steps = Math.abs(angleSteps);
+        const sign = angleSteps >= 0 ? 1 : -1;
+        affected.forEach(c => {
+          let p = c.userData.cubePos.slice();
+          for (let i = 0; i < steps; i++) p = rotatePosQuarter(p, axis, sign);
+          c.userData.cubePos = p.map(roundToLattice);
+        });
+      }
+
+      function rotateSideAroundAxis(side, axis, sign) {
+        if (axis === 'y') {
+          if (sign === 1)   return ({F:'R', R:'B', B:'L', L:'F', U:'U', D:'D'})[side] || side;
+          else              return ({F:'L', L:'B', B:'R', R:'F', U:'U', D:'D'})[side] || side;
+        } else if (axis === 'x') {
+          if (sign === 1)   return ({U:'F', F:'D', D:'B', B:'U', L:'L', R:'R'})[side] || side;
+          else              return ({U:'B', B:'D', D:'F', F:'U', L:'L', R:'R'})[side] || side;
+        } else { // 'z'
+          if (sign === 1)   return ({R:'U', U:'L', L:'D', D:'R', F:'F', B:'B'})[side] || side;
+          else              return ({R:'D', D:'L', L:'U', U:'R', F:'F', B:'B'})[side] || side;
+        }
+      }
+
+      function deepCloneState(s) { return JSON.parse(JSON.stringify(s)); }
+
+      
+      function applyMoveToStateGeometry(axis, angleSteps, affectedPositionsInitial) {
+        if (!cubeState) return;
+        const steps = Math.abs(angleSteps);
+        const sign = angleSteps >= 0 ? 1 : -1;
+
+        // 90°: una pasada directa desde pOld -> pNew
+        if (steps === 1) {
+          const newState = deepCloneState(cubeState);
+          for (const pOld of affectedPositionsInitial) {
+            const [x,y,z] = pOld;
+            const pNew = rotatePosQuarter(pOld, axis, sign);
+
+            const presentSides = [];
+            if (isClose(y,  1)) presentSides.push('U');
+            if (isClose(y, -1)) presentSides.push('D');
+            if (isClose(z,  1)) presentSides.push('F');
+            if (isClose(z, -1)) presentSides.push('B');
+            if (isClose(x, -1)) presentSides.push('L');
+            if (isClose(x,  1)) presentSides.push('R');
+
+            for (const side of presentSides) {
+              const [r, c] = RC[side](x, y, z);
+              const color  = cubeState[FACE_INDEX[side]][r][c];
+              const side2  = rotateSideAroundAxis(side, axis, sign);
+              const [r2,c2]= RC[side2](...pNew);
+              newState[FACE_INDEX[side2]][r2][c2] = color;
+            }
+          }
+          cubeState = newState;
+          return;
+        }
+
+        // 180°: compón dos cuartos sin pasar por estado intermedio
+        if (steps === 2) {
+          const newState = deepCloneState(cubeState);
+          for (const pOld of affectedPositionsInitial) {
+            const [x,y,z] = pOld;
+
+            // destino geométrico tras 180°
+            const pMid = rotatePosQuarter(pOld, axis, sign);
+            const pNew = rotatePosQuarter(pMid, axis, sign);
+
+            const presentSides = [];
+            if (isClose(y,  1)) presentSides.push('U');
+            if (isClose(y, -1)) presentSides.push('D');
+            if (isClose(z,  1)) presentSides.push('F');
+            if (isClose(z, -1)) presentSides.push('B');
+            if (isClose(x, -1)) presentSides.push('L');
+            if (isClose(x,  1)) presentSides.push('R');
+
+            for (const side of presentSides) {
+              const [r, c] = RC[side](x, y, z);
+              const color  = cubeState[FACE_INDEX[side]][r][c];
+
+              // rota el "nombre" dos veces
+              const sideMid = rotateSideAroundAxis(side, axis, sign);
+              const sideNew = rotateSideAroundAxis(sideMid, axis, sign);
+
+              const [r2, c2] = RC[sideNew](...pNew);
+              newState[FACE_INDEX[sideNew]][r2][c2] = color;
+            }
+          }
+          cubeState = newState;
+          return;
+        }
+
+        
+        let posWorking = affectedPositionsInitial.map(p => p.slice());
+        for (let step = 0; step < steps; step++) {
+          const ns = deepCloneState(cubeState);
+          for (const pOld of posWorking) {
+            const [x,y,z] = pOld;
+            const pNew = rotatePosQuarter(pOld, axis, sign);
+            const presentSides = [];
+            if (isClose(y,  1)) presentSides.push('U');
+            if (isClose(y, -1)) presentSides.push('D');
+            if (isClose(z,  1)) presentSides.push('F');
+            if (isClose(z, -1)) presentSides.push('B');
+            if (isClose(x, -1)) presentSides.push('L');
+            if (isClose(x,  1)) presentSides.push('R');
+            for (const side of presentSides) {
+              const [r, c] = RC[side](x, y, z);
+              const color  = cubeState[FACE_INDEX[side]][r][c];
+              const side2  = rotateSideAroundAxis(side, axis, sign);
+              const [r2,c2]= RC[side2](...pNew);
+              ns[FACE_INDEX[side2]][r2][c2] = color;
+            }
+          }
+          cubeState = ns;
+          posWorking = posWorking.map(p => rotatePosQuarter(p, axis, sign));
+        }
+      }
+
+      function animateMovement(move, onComplete) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        const { face, axis, layerFilter, angle } = parseMove(move);
+        const group = new THREE.Group();
+        const affected = cubies.filter((c) => layerFilter(c.userData.cubePos));
+        const affectedPositionsInitial = affected.map(c => c.userData.cubePos.slice());
+
+        affected.forEach((c) => { scene.remove(c); group.add(c); });
+        scene.add(group);
+
+        const from = 0, to = angle * (Math.PI / 2);
+        const start = performance.now();
+
+        function step(t) {
+          if (isPaused) { animationId = requestAnimationFrame(step); return; }
+          const progress = Math.min((t - start) / animationDuration, 1);
+          const eased = easeInOutCubic(progress);
+          group.rotation[axis] = THREE.MathUtils.lerp(from, to, eased);
+
+          if (progress < 1) {
+            animationId = requestAnimationFrame(step);
+          } else {
+            updateCubiePositions(affected, axis, angle);
+            applyMoveToStateGeometry(axis, angle, affectedPositionsInitial);
+
+            affected.forEach((c) => {
+              scene.attach(c);
+              const [x,y,z] = c.userData.cubePos;
+              c.position.set(x * spacing, y * spacing, z * spacing);
+              c.rotation.set(0,0,0);
+              c.updateMatrixWorld(true);
+            });
+            scene.remove(group);
+
+            repaintFromState();
+
+            isAnimating = false;
+            animationId = null;
+            if (onComplete) onComplete();
+          }
+        }
+        animationId = requestAnimationFrame(step);
+      }
+
+    function normalizeSequence(moves, expandNumeric = true) {
+      if (!expandNumeric) return [...moves];
+      return moves.flatMap(m => {
+        const face = m[0]; // U,D,F,B,L,R
+        const hasPrime = m.includes("'");
+        const num = m.match(/\d+/);
+        const count = num ? Math.max(1, parseInt(num[0], 10)) : 1;
+
+        // Si hay número, ignoramos prime por consistencia (R2 == R2')
+        if (num) return Array(count).fill(face);
+
+        // Sin número, respetamos el prime
+        return [hasPrime ? `${face}'` : face];
+  });
+}
+
+      function loadSequence(moves) {
+        const EXPAND_NUMERIC = true; // antes EXPAND_DOUBLES=false
+        moveSequence = normalizeSequence(moves, EXPAND_NUMERIC);
+        currentMoveIndex = -1;
+        updateUI();
+        updateMoveDescription();
+      }
+      function nextMove() {
+        if (isAnimating || currentMoveIndex >= moveSequence.length - 1) return;
+        currentMoveIndex++;
+        const move = moveSequence[currentMoveIndex];
+        updateMoveDescription();
+        animateMovement(move, () => { updateUI(); });
+      }
+      function previousMove() {
+        if (isAnimating || currentMoveIndex < 0) return;
+        const move = moveSequence[currentMoveIndex];
+        const inverseMove = move.includes("'") ? move.replace("'", "") : (move.includes("2") ? move : move + "'");
+        currentMoveIndex--;
+        updateMoveDescription();
+        animateMovement(inverseMove, () => { updateUI(); });
+      }
+      function resetCube() {
+        if (isAnimating) return;
+        const inverseMoves = [];
+        for (let i = currentMoveIndex; i >= 0; i--) {
+          const m = moveSequence[i];
+          inverseMoves.push(m.includes("'") ? m.replace("'", "") : (m.includes("2") ? m : m + "'"));
+        }
+        let idx = 0;
+        function execNext() {
+          if (idx < inverseMoves.length) {
+            animateMovement(inverseMoves[idx], () => { idx++; execNext(); });
+          } else {
+            currentMoveIndex = -1;
+            updateUI(); updateMoveDescription();
+          }
+        }
+        if (inverseMoves.length) execNext();
+      }
+      function togglePause() {
+        isPaused = !isPaused;
+        const btn = document.getElementById('pause-btn');
+        if (btn) btn.textContent = isPaused ? '▶️ Continuar' : '⏸️ Pausar';
+      }
+      function updateUI() {
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        if (prevBtn) prevBtn.disabled = currentMoveIndex < 0 || isAnimating;
+        if (nextBtn) nextBtn.disabled = currentMoveIndex >= moveSequence.length - 1 || isAnimating;
+        if (pauseBtn) pauseBtn.disabled = !isAnimating;
+        const stepInfo = document.getElementById('step-info');
+        if (stepInfo) stepInfo.textContent = moveSequence.length > 0 ? `Paso ${currentMoveIndex + 1} de ${moveSequence.length}` : 'Listo para comenzar';
+      }
+      function updateMoveDescription() {
+        const moveDesc = document.getElementById('move-description');
+        if (!moveDesc) return;
+        if (currentMoveIndex >= 0 && currentMoveIndex < moveSequence.length) {
+          const move = moveSequence[currentMoveIndex];
+          moveDesc.textContent = `${move}`;
+        } else if (moveSequence.length > 0) {
+          const nextMove = moveSequence[currentMoveIndex + 1];
+          moveDesc.textContent = nextMove ? `Siguiente: ${nextMove}` : 'Secuencia completada';
+        } else {
+          moveDesc.textContent = 'Presiona "Cargar Secuencia" para comenzar';
+        }
+      }
+      function configureCube(options = {}) { if (options.animationSpeed) animationDuration = options.animationSpeed; }
+
+      // API pública
+      function aplicarColoresDeMatriz(matriz) {
+        if (!Array.isArray(matriz) || matriz.length !== 6) {
+          console.warn('aplicarColoresDeMatriz: matriz inválida', matriz);
+          return;
+        }
+        cubeState = matriz.map(face =>
+          face.map(row => row.map(v => {
+            const up = String(v || 'N').toUpperCase();
+            return ['W','R','Y','O','G','B'].includes(up) ? up : 'N';
+          }))
+        );
+        repaintFromState();
+        if (DEBUG) console.log('✅ Colores aplicados desde matriz y estado actualizado');
+      }
+
+      window.RubikCube = {
+        loadSequence, nextMove, previousMove, resetCube, togglePause,
+        configureCube, setAnimationSpeed: (speed) => { animationDuration = speed; },
+        isAnimating: () => isAnimating, getCurrentStep: () => currentMoveIndex + 1,
+        getTotalSteps: () => moveSequence.length,
+        getState: () => JSON.parse(JSON.stringify(cubeState || [])),
+        setState: (state) => { aplicarColoresDeMatriz(state); }
+      };
+      function setUIVisible(visible) {
+        const controls = document.getElementById('controls');
+        const info = document.getElementById('info');
+        if (controls) controls.style.display = visible ? 'flex' : 'none';
+        if (info) info.style.display = visible ? 'block' : 'none';
+      }
+      window.CubeDebug = { setAllGray, aplicarColoresDeMatriz, setUIVisible };
+
+      function render() { requestAnimationFrame(render); renderer.render(scene, camera); }
+      render();
+
+      setAllGray();
+
+      const params = new URLSearchParams(location.search);
+      const embed = params.get('embed');
+      if (embed && ['1','true','yes'].includes(embed?.toLowerCase?.())) setUIVisible(false);
+
+      document.getElementById('next-btn')?.addEventListener('click', () => nextMove());
+      document.getElementById('prev-btn')?.addEventListener('click', () => previousMove());
+      document.getElementById('reset-btn')?.addEventListener('click', () => resetCube());
+      document.getElementById('pause-btn')?.addEventListener('click', () => togglePause());
+      document.getElementById('load-sequence-btn')?.addEventListener('click', () => {
+        const sequences = [
+          ["R", "U'", "F", "L2", "D"],
+          ["R", "U", "R'", "F", "R", "F'"],
+          ["F", "R", "U'", "R'", "U'", "R", "U", "R'", "F'"],
+          ["R", "U", "R'", "U", "R", "U2", "R'"]
+        ];
+        loadSequence(sequences[Math.floor(Math.random() * sequences.length)]);
+      });
+      const speedSlider = document.getElementById('speed-slider');
+      const speedValue = document.getElementById('speed-value');
+      speedSlider?.addEventListener('input', (e) => {
+        const v = parseInt(e.target.value, 10);
+        animationDuration = v;
+        if (speedValue) speedValue.textContent = `${v}ms`;
+      });
+    </script>
+  </body>
+</html>

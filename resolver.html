@@ -6,7 +6,6 @@
   <title>Resolver Cubo 3x3</title>
   <link rel="stylesheet" href="css/resolver.css" />
   <link rel="stylesheet" href="css/Nav.css" />
-
 </head>
 <body>
   <div id="navbar"></div>
@@ -19,24 +18,48 @@
       <canvas id="canvasOutput" style="width: 95%;"></canvas>
     </div>
 
-    <div class="modelo3d-placeholder">
-      <p>Modelo 3D del cubo (futuro)</p>
+    <div class="modelo3d-placeholder" style="width: 100%; position: relative; min-height: 300px;">
+      <iframe id="iframe3d" src="./Cubo3D.html?embed=1" style="width: 100%; height: 100%; border: 0; min-height: 300px;"></iframe>
+    </div>
+  </div>
+
+  <div class="controles-3d">
+    <button type="button" id="btn3dPrev"  class="boton mini secundario">⬅️ Anterior</button>
+    <button type="button" id="btn3dNext"  class="boton mini secundario">Siguiente ➡️</button>
+    <button type="button" id="btn3dReset" class="boton mini secundario">🔄 Reiniciar</button>
+    <button type="button" id="btn3dPause" class="boton mini secundario">⏸️ Pausar</button>
+    <button type="button" id="btn3dLoad"  class="boton mini secundario">📝 Cargar Secuencia</button>
+    <div class="slider">
+      <label for="speed3d">Velocidad:</label>
+      <input type="range" id="speed3d" min="100" max="1000" value="300" step="50" />
+      <span id="speed3dValue">300ms</span>
     </div>
   </div>
 
   <div class="botones">
+    <button type="button" id="guardarCara" class="boton">Guardar Cara</button>
     <button type="button" id="siguiente" class="boton secundario">Siguiente</button>
     <button type="button" id="guardar" class="boton deshabilitado">Guardar</button>
-    <a href="Manual.html"><button type="button" class="boton secundario">Agregar manualmente</button></a>
-    <a href="Menu.html"><button type="button" class="boton secundario">Regresar</button></a>
-    <a href="Entrenamiento.html"><button type="button" class="boton secundario">Entrenamiento</button></a>
+
+    <button type="button" id="cargarManual3D" class="boton secundario">Cargar desde Manual</button>
+    <button type="button" id="limpiarColores" class="boton secundario">Limpiar colores</button>
+
+    <a href="Manual.html" class="boton secundario">Agregar manualmente</a>
+    <a href="Menu.html" class="boton secundario">Regresar</a>
+    <a href="Entrenamiento.html" class="boton secundario">Entrenamiento</a>
   </div>
 
-  
-  <!-- Carga OpenCV.js desde CDN oficial -->
+  <!-- Puente 3D (define window.applyMatrixTo3D, enlaza controles y escucha storage/custom-events) -->
+  <script type="module" src="java/rubik3d-bridge.js"></script>
+    <!-- Fallback enlaza controles (cargar secuencia, siguiente, etc..) 3D hacia el puente 3D -->
+  <script type="module" src="java/resolver-3d-bridge-fallback.js"></script>
+  <!-- Script de cámara existente -->
+  <script type="module" src="java/script.js"></script>
+  <!-- Shim que evita sobrescribir caras y añade "Reiniciar captura" -->
+  <script type="module" src="java/capture-guard-shim.js"></script>
+  <!-- Navbar -->
+  <script type="module" src="java/Nav.js"></script>
+  <!-- OpenCV -->
   <script async src="https://docs.opencv.org/4.10.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
-  <script type="module" src="/java/script.js"></script>
-  <script type="module" src="/java/Nav.js"></script>
 </body>
 </html>
-
