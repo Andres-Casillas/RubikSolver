@@ -18,8 +18,8 @@
       <canvas id="canvasOutput" style="width: 95%;"></canvas>
     </div>
 
-    <div class="modelo3d-placeholder" style="width: 100%; position: relative;">
-      <iframe id="iframe3d" src="./Cubo3D.html?embed=1" style="width: 100%; height: 100%; border: 0;"></iframe>
+    <div class="modelo3d-placeholder" style="width: 100%; position: relative; min-height: 300px;">
+      <iframe id="iframe3d" src="./Cubo3D.html?embed=1" style="width: 100%; height: 100%; border: 0; min-height: 300px;"></iframe>
     </div>
   </div>
 
@@ -38,7 +38,6 @@
 
   <div class="botones">
     <button type="button" id="guardarCara" class="boton">Guardar Cara</button>
-
     <button type="button" id="siguiente" class="boton secundario">Siguiente</button>
     <button type="button" id="guardar" class="boton deshabilitado">Guardar</button>
 
@@ -50,109 +49,17 @@
     <a href="Entrenamiento.html" class="boton secundario">Entrenamiento</a>
   </div>
 
+  <!-- Puente 3D (define window.applyMatrixTo3D, enlaza controles y escucha storage/custom-events) -->
+  <script type="module" src="java/rubik3d-bridge.js"></script>
+    <!-- Fallback enlaza controles (cargar secuencia, siguiente, etc..) 3D hacia el puente 3D -->
+  <script type="module" src="java/resolver-3d-bridge-fallback.js"></script>
+  <!-- Script de cámara existente -->
   <script type="module" src="java/script.js"></script>
+  <!-- Shim que evita sobrescribir caras y añade "Reiniciar captura" -->
+  <script type="module" src="java/capture-guard-shim.js"></script>
+  <!-- Navbar -->
   <script type="module" src="java/Nav.js"></script>
+  <!-- OpenCV -->
   <script async src="https://docs.opencv.org/4.10.0/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
-  
-  <script>
-    const STORAGE_KEYS = { matrix3D: 'rubik.manualMatrix3D' };
-    const iframe = document.getElementById('iframe3d');
-
-    function applyMatrixTo3D(matrix) {
-      if (!iframe || !iframe.contentWindow) return;
-      const win = iframe.contentWindow;
-      const tryApply = () => {
-        try {
-          if (win.CubeDebug) {
-            if (!matrix && typeof win.CubeDebug.setAllGray === 'function') {
-              win.CubeDebug.setAllGray();
-              return true;
-            }
-            if (matrix && typeof win.CubeDebug.aplicarColoresDeMatriz === 'function') {
-              win.CubeDebug.aplicarColoresDeMatriz(matrix);
-              return true;
-            }
-          }
-        } catch {}
-        return false;
-      };
-      if (!tryApply()) {
-        const interval = setInterval(() => { if (tryApply()) clearInterval(interval); }, 200);
-        setTimeout(() => clearInterval(interval), 10000);
-      }
-    }
-    window.applyMatrixTo3D = applyMatrixTo3D;
-
-    function greyMatrix() {
-      return Array.from({ length: 6 }, () =>
-        Array.from({ length: 3 }, () => Array(3).fill('N'))
-      );
-    }
-    function clearSavedMatrix() {
-      localStorage.removeItem(STORAGE_KEYS.matrix3D);
-      sessionStorage.removeItem(STORAGE_KEYS.matrix3D);
-      applyMatrixTo3D(greyMatrix());
-    }
-
-    iframe.addEventListener('load', () => {
-      applyMatrixTo3D(greyMatrix());
-
-      // Controles externos
-      const prev = document.getElementById('btn3dPrev');
-      const next = document.getElementById('btn3dNext');
-      const reset = document.getElementById('btn3dReset');
-      const pause = document.getElementById('btn3dPause');
-      const load  = document.getElementById('btn3dLoad');
-      const speedInput = document.getElementById('speed3d');
-      const speedValue = document.getElementById('speed3dValue');
-
-      const api = () => iframe.contentWindow?.RubikCube;
-
-      const setSpeed = (v) => { api()?.setAnimationSpeed?.(v); speedValue.textContent = `${v}ms`; };
-      setSpeed(parseInt(speedInput.value, 10));
-      speedInput.addEventListener('input', (e) => setSpeed(parseInt(e.target.value, 10)));
-
-      next.addEventListener('click', () => api()?.nextMove?.());
-      prev.addEventListener('click', () => api()?.previousMove?.());
-      reset.addEventListener('click', () => api()?.resetCube?.());
-      pause.addEventListener('click', () => api()?.togglePause?.());
-      load.addEventListener('click', () => {
-        const sequences = [
-          ["R", "U'", "F", "L2", "D"],
-          ["R", "U", "R'", "F", "R", "F'"],
-          ["F", "R", "U'", "R'", "U'", "R", "U", "R'", "F'"],
-          ["R", "U", "R'", "U", "R", "U2", "R'"]
-        ];
-        api()?.loadSequence?.(sequences[Math.floor(Math.random() * sequences.length)]);
-      });
-
-      // Deshabilitar/rehabilitar mientras anima (evita "encimar" movimientos)
-      setInterval(() => {
-        const a = api();
-        if (!a) return;
-        const anim = a.isAnimating?.() || false;
-        const canPrev = !anim && (a.getCurrentStep?.() > 0);
-        const canNext = !anim && (a.getCurrentStep?.() < (a.getTotalSteps?.() || 0));
-        prev.disabled = !canPrev;
-        next.disabled = !canNext;
-        pause.disabled = !anim;
-      }, 100);
-    });
-
-    document.getElementById('cargarManual3D').addEventListener('click', () => {
-      const raw = localStorage.getItem(STORAGE_KEYS.matrix3D);
-      if (!raw) return alert('No hay datos manuales guardados. Ve a "Agregar manualmente".');
-      try { applyMatrixTo3D(JSON.parse(raw)); }
-      catch { alert('Error al cargar la matriz manual guardada.'); }
-    });
-    document.getElementById('limpiarColores').addEventListener('click', () => clearSavedMatrix());
-
-    window.addEventListener('storage', (e) => {
-      if (e.key === STORAGE_KEYS.matrix3D && e.newValue) {
-        try { applyMatrixTo3D(JSON.parse(e.newValue)); }
-        catch {}
-      }
-    });
-  </script>
 </body>
 </html>

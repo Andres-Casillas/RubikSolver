@@ -44,13 +44,11 @@
       import * as THREE from "three";
       import { OrbitControls } from "three/controls/OrbitControls.js";
 
-      // ----------------- Config/Debug -----------------
-      const DEBUG = true;
-      // Cambia a 'alt' para probar la orientación alternativa de la cara B
-      // 'base' = la que llevas usando; 'alt' = espejo horizontal alternativo
-      const ORIENT_B = 'alt'; // 'base' | 'alt'
-      // ------------------------------------------------
+      // Ajustes
+      const DEBUG = false;
+      const ORIENT_B = 'alt'; // variante que corrige la cara B
 
+      // Escena
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x0f0f13);
       const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
@@ -76,9 +74,11 @@
       ground.receiveShadow = true;
       scene.add(ground);
 
+      // Utils
       const epsilon = 0.001;
       const isClose = (a, b) => Math.abs(a - b) < epsilon;
 
+      // Parámetros cubo
       const cubieSize = 0.95;
       const gap = 0.1;
       const spacing = cubieSize + gap;
@@ -88,25 +88,22 @@
       const COLOR_MAP = { W: 0xffffff, R: 0xcc0000, Y: 0xffd700, O: 0xff6600, G: 0x00aa00, B: 0x0066cc, N: DEFAULT_GRAY };
       const FACE_INDEX = { U:0, F:1, D:2, B:3, L:4, R:5 };
 
+      // Estado lógico [U,F,D,B,L,R]
       let cubeState = null;
 
+      // Índices discretos
       function idx(c) { return c + 1; }       // -1,0,1 -> 0,1,2
       function invIdx(c) { return 2 - (c + 1); }
 
-      // mapeos (x,y,z)->(r,c)
+      // rc mapeos
       function rcForU(x, y, z) { return [idx(z), idx(x)]; }
       function rcForD(x, y, z) { return [invIdx(z), idx(x)]; }
       function rcForF(x, y, z) { return [invIdx(y), idx(x)]; }
-
-      // Cara B: dos variantes para diagnosticar/eliminar el fallo
       function rcForB_base(x, y, z) { return [invIdx(y), invIdx(x)]; }
-      function rcForB_alt (x, y, z) { return [invIdx(y), idx(x)]; } // espejo horizontal alternativo
-
+      function rcForB_alt (x, y, z) { return [invIdx(y), idx(x)]; }
       function rcForL(x, y, z) { return [invIdx(y), idx(z)]; }
       function rcForR(x, y, z) { return [invIdx(y), invIdx(z)]; }
-
       const rcForB = (ORIENT_B === 'alt') ? rcForB_alt : rcForB_base;
-
       const RC = { U: rcForU, F: rcForF, D: rcForD, B: rcForB, L: rcForL, R: rcForR };
 
       function normalizeFaces(caras) {
@@ -127,6 +124,7 @@
           const [x, y, z] = cubie.userData.cubePos;
           cubie.material.forEach((material, faceIndex) => {
             let hex = DEFAULT_GRAY;
+            // Orden Three.js: 0:+X (R), 1:-X (L), 2:+Y (U), 3:-Y (D), 4:+Z (F), 5:-Z (B)
             if (faceIndex === 2 && isClose(y, 1)) {
               const [r,c] = rcForU(x,y,z); hex = COLOR_MAP[faces.U?.[r]?.[c] ?? 'N'] ?? DEFAULT_GRAY;
             } else if (faceIndex === 3 && isClose(y, -1)) {
@@ -174,7 +172,7 @@
         }
       }
 
-      // 26 piezas (se excluye solo el núcleo 0,0,0)
+      // Construcción (26 piezas)
       const cubies = [];
       for (let x = -1; x <= 1; x++) {
         for (let y = -1; y <= 1; y++) {
@@ -197,15 +195,15 @@
         if (DEBUG) console.log('🎨 setAllGray aplicado');
       }
 
-      // Animación y estado
+      // Secuencias y animación
       let moveSequence = [];
       let currentMoveIndex = -1;
       let isAnimating = false;
       let isPaused = false;
       let animationId = null;
 
-      // Signo por cara para alinear notación “clockwise visto de la cara” con ejes globales
-      const FACE_SIGN = { U: 1, D: -1, F: 1, B: -1, L: -1, R: 1 }; // variante que suele corregir U/R/B en ciclos
+      // Signos por cara (alineado con notación)
+      const FACE_SIGN = { U: 1, D: -1, F: 1, B: -1, L: -1, R: 1 };
 
       function parseMove(move) {
         const face = move[0];
@@ -226,8 +224,7 @@
         const dir = primed ? -1 : 1;
         const angle = quarterTurns * dir * (FACE_SIGN[face] ?? 1);
 
-        if (DEBUG) console.log(`➡️ parseMove ${move}: axis=${axisMap[face]} angle(q)=${angle}`);
-
+        if (DEBUG) console.log(`parseMove ${move}: axis=${axisMap[face]} angle(q)=${angle}`);
         return { face, axis: axisMap[face], layerFilter: layerMap[face], angle };
       }
 
@@ -276,18 +273,18 @@
 
       function deepCloneState(s) { return JSON.parse(JSON.stringify(s)); }
 
+      
       function applyMoveToStateGeometry(axis, angleSteps, affectedPositionsInitial) {
         if (!cubeState) return;
         const steps = Math.abs(angleSteps);
         const sign = angleSteps >= 0 ? 1 : -1;
 
-        let posWorking = affectedPositionsInitial.map(p => p.slice());
-
-        for (let step = 0; step < steps; step++) {
+        // 90°: una pasada directa desde pOld -> pNew
+        if (steps === 1) {
           const newState = deepCloneState(cubeState);
-
-          for (const pOld of posWorking) {
+          for (const pOld of affectedPositionsInitial) {
             const [x,y,z] = pOld;
+            const pNew = rotatePosQuarter(pOld, axis, sign);
 
             const presentSides = [];
             if (isClose(y,  1)) presentSides.push('U');
@@ -297,23 +294,75 @@
             if (isClose(x, -1)) presentSides.push('L');
             if (isClose(x,  1)) presentSides.push('R');
 
-            const pNew = rotatePosQuarter(pOld, axis, sign);
-
             for (const side of presentSides) {
-              const [r, c]   = RC[side](x, y, z);
-              const color    = cubeState[FACE_INDEX[side]][r][c];
-              const sideNew  = rotateSideAroundAxis(side, axis, sign);
-              const [r2, c2] = RC[sideNew](...pNew);
-
-              newState[FACE_INDEX[sideNew]][r2][c2] = color;
-
-              if (DEBUG && step === steps - 1) {
-                console.log(`   sticker ${side}[${r},${c}](${color}) -> ${sideNew}[${r2},${c2}] via axis=${axis} sign=${sign}`);
-              }
+              const [r, c] = RC[side](x, y, z);
+              const color  = cubeState[FACE_INDEX[side]][r][c];
+              const side2  = rotateSideAroundAxis(side, axis, sign);
+              const [r2,c2]= RC[side2](...pNew);
+              newState[FACE_INDEX[side2]][r2][c2] = color;
             }
           }
-
           cubeState = newState;
+          return;
+        }
+
+        // 180°: compón dos cuartos sin pasar por estado intermedio
+        if (steps === 2) {
+          const newState = deepCloneState(cubeState);
+          for (const pOld of affectedPositionsInitial) {
+            const [x,y,z] = pOld;
+
+            // destino geométrico tras 180°
+            const pMid = rotatePosQuarter(pOld, axis, sign);
+            const pNew = rotatePosQuarter(pMid, axis, sign);
+
+            const presentSides = [];
+            if (isClose(y,  1)) presentSides.push('U');
+            if (isClose(y, -1)) presentSides.push('D');
+            if (isClose(z,  1)) presentSides.push('F');
+            if (isClose(z, -1)) presentSides.push('B');
+            if (isClose(x, -1)) presentSides.push('L');
+            if (isClose(x,  1)) presentSides.push('R');
+
+            for (const side of presentSides) {
+              const [r, c] = RC[side](x, y, z);
+              const color  = cubeState[FACE_INDEX[side]][r][c];
+
+              // rota el "nombre" dos veces
+              const sideMid = rotateSideAroundAxis(side, axis, sign);
+              const sideNew = rotateSideAroundAxis(sideMid, axis, sign);
+
+              const [r2, c2] = RC[sideNew](...pNew);
+              newState[FACE_INDEX[sideNew]][r2][c2] = color;
+            }
+          }
+          cubeState = newState;
+          return;
+        }
+
+        
+        let posWorking = affectedPositionsInitial.map(p => p.slice());
+        for (let step = 0; step < steps; step++) {
+          const ns = deepCloneState(cubeState);
+          for (const pOld of posWorking) {
+            const [x,y,z] = pOld;
+            const pNew = rotatePosQuarter(pOld, axis, sign);
+            const presentSides = [];
+            if (isClose(y,  1)) presentSides.push('U');
+            if (isClose(y, -1)) presentSides.push('D');
+            if (isClose(z,  1)) presentSides.push('F');
+            if (isClose(z, -1)) presentSides.push('B');
+            if (isClose(x, -1)) presentSides.push('L');
+            if (isClose(x,  1)) presentSides.push('R');
+            for (const side of presentSides) {
+              const [r, c] = RC[side](x, y, z);
+              const color  = cubeState[FACE_INDEX[side]][r][c];
+              const side2  = rotateSideAroundAxis(side, axis, sign);
+              const [r2,c2]= RC[side2](...pNew);
+              ns[FACE_INDEX[side2]][r2][c2] = color;
+            }
+          }
+          cubeState = ns;
           posWorking = posWorking.map(p => rotatePosQuarter(p, axis, sign));
         }
       }
@@ -342,9 +391,8 @@
           if (progress < 1) {
             animationId = requestAnimationFrame(step);
           } else {
-            updateCubiePositions(affected, axis, Math.sign(angle) * (Math.abs(angle)));
-            if (DEBUG) console.log(`✅ aplicando estado lógico para ${move}`);
-            applyMoveToStateGeometry(axis, Math.sign(angle) * (Math.abs(angle)), affectedPositionsInitial);
+            updateCubiePositions(affected, axis, angle);
+            applyMoveToStateGeometry(axis, angle, affectedPositionsInitial);
 
             affected.forEach((c) => {
               scene.attach(c);
@@ -357,26 +405,6 @@
 
             repaintFromState();
 
-            // Autoverificación rápida: mover + inverso => estado previo
-            if (DEBUG) {
-              const before = deepCloneState(cubeState);
-              const inv = move.includes("'") ? move.replace("'", "") : (move.includes("2") ? move : move + "'");
-              const { axis:ax2, layerFilter:lf2, angle:ang2 } = parseMove(inv);
-              const aff2 = cubies.filter((c) => lf2(c.userData.cubePos));
-              const pos2 = aff2.map(c => c.userData.cubePos.slice());
-              // simular solo estado (sin animación visual)
-              applyMoveToStateGeometry(ax2, Math.sign(ang2) * (Math.abs(ang2)), pos2);
-              const after = deepCloneState(cubeState);
-              // volver a dejar como estaba (aplicamos de nuevo el original)
-              const { axis:ax3, layerFilter:lf3, angle:ang3 } = parseMove(move);
-              const pos3 = aff2.map(c => c.userData.cubePos.slice()); // capa misma
-              applyMoveToStateGeometry(ax3, Math.sign(ang3) * (Math.abs(ang3)), pos3);
-              // comparar
-              const same = JSON.stringify(before) === JSON.stringify(cubeState);
-              console.log(`🔁 check [${move} ∘ ${inv} ∘ ${move}] identidad=${same}`);
-              if (!same) console.warn('⚠️ Diferencia detectada en autoverificación. Revisa orientación de B con ORIENT_B=', ORIENT_B);
-            }
-
             isAnimating = false;
             animationId = null;
             if (onComplete) onComplete();
@@ -385,8 +413,25 @@
         animationId = requestAnimationFrame(step);
       }
 
+    function normalizeSequence(moves, expandNumeric = true) {
+      if (!expandNumeric) return [...moves];
+      return moves.flatMap(m => {
+        const face = m[0]; // U,D,F,B,L,R
+        const hasPrime = m.includes("'");
+        const num = m.match(/\d+/);
+        const count = num ? Math.max(1, parseInt(num[0], 10)) : 1;
+
+        // Si hay número, ignoramos prime por consistencia (R2 == R2')
+        if (num) return Array(count).fill(face);
+
+        // Sin número, respetamos el prime
+        return [hasPrime ? `${face}'` : face];
+  });
+}
+
       function loadSequence(moves) {
-        moveSequence = [...moves];
+        const EXPAND_NUMERIC = true; // antes EXPAND_DOUBLES=false
+        moveSequence = normalizeSequence(moves, EXPAND_NUMERIC);
         currentMoveIndex = -1;
         updateUI();
         updateMoveDescription();
@@ -454,6 +499,7 @@
       }
       function configureCube(options = {}) { if (options.animationSpeed) animationDuration = options.animationSpeed; }
 
+      // API pública
       function aplicarColoresDeMatriz(matriz) {
         if (!Array.isArray(matriz) || matriz.length !== 6) {
           console.warn('aplicarColoresDeMatriz: matriz inválida', matriz);

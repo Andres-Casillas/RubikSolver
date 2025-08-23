@@ -21,6 +21,9 @@ let estadoCuboActual = Array(9).fill('N');
 
 let caraActual = 0;
 
+// NUEVO: marca si una cara ya fue guardada explícitamente por el usuario
+let caraGuardada = Array(6).fill(false);
+
 function onOpenCvReady() {
   navigator.mediaDevices.getUserMedia({ video: true, audio: false })
     .then(function (stream) {
@@ -241,6 +244,9 @@ document.getElementById("guardarCara").addEventListener("click", () => {
   }
   matriz[caraActual] = copia;
 
+  // NUEVO: marcar que esta cara quedó confirmada
+  caraGuardada[caraActual] = true;
+
   const matrix3D = buildMatrix3DFromMatriz(matriz);
   logHuecos(matrix3D, '(post-guardarCara)');
   actualizarModelo3D(matrix3D);
@@ -249,11 +255,16 @@ document.getElementById("guardarCara").addEventListener("click", () => {
 });
 
 document.getElementById("siguiente").addEventListener("click", () => {
-  let copia = colorGrid.map(fila => [...fila]);
-  if (copia.flat().includes('N')) {
-    copia = sanitizeFace(copia);
+  // NUEVO: solo sobreescribe si NO se guardó explícitamente antes
+  if (!caraGuardada[caraActual]) {
+    let copia = colorGrid.map(fila => [...fila]);
+    if (copia.flat().includes('N')) {
+      copia = sanitizeFace(copia);
+    }
+    matriz[caraActual] = copia;
+  } else {
+    console.log(`➡️ Siguiente: cara ${caraActual} ya estaba guardada; no se sobreescribe.`);
   }
-  matriz[caraActual] = copia;
 
   if (caraActual < 5) {
     caraActual++;
@@ -261,6 +272,9 @@ document.getElementById("siguiente").addEventListener("click", () => {
     caraActual = 0;
   }
   actualizarCara();
+
+  // Reinicia el estado de la nueva cara (aún no guardada)
+  caraGuardada[caraActual] = false;
 
   const matrix3D = buildMatrix3DFromMatriz(matriz);
   logHuecos(matrix3D, '(post-siguiente)');
