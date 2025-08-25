@@ -1,0 +1,115 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #162144, #1e3c72);
+  color: #fff;
+  min-height: 98vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-box {
+  background: rgba(30, 60, 114, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(16, 32, 64, 0.25);
+  padding: 2.5rem 2rem 2rem 2rem;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-box .avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  background: #fff;
+  object-fit: cover;
+}
+
+.login-box h1 {
+  font-size: 1.7rem;
+  margin-bottom: 1.5rem;
+  color: #ff9800;
+  letter-spacing: 1px;
+}
+
+.login-box form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-box label {
+  font-size: 1rem;
+  color: white;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.login-box input[type="text"],
+.login-box input[type="password"] {
+  border: none;
+  border-bottom: 1px solid silver;
+  background: transparent;
+  outline: none;
+  height: 40px;
+  color: silver;
+  font-size: 16px;
+}
+
+.login-box input[type="submit"] {
+  background-color: #ff9800;
+  color: #162144;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8rem 0;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.login-box input[type="submit"]:hover {
+  background-color: #e68900;
+}
+
+.login-box a {
+  color: #1e90ff;
+  text-decoration: none;
+  font-weight: bold;
+  margin-left: 0.3rem;
+  transition: color 0.2s;
+}
+
+.login-box a:hover {
+  color: #ff9800;
+}
+
+.login-box form {
+  font-size: 0.98rem;
+  color: #cbd5e1;
+}
+
+.login-box form > span, .login-box form > p {
+  margin-top: 0.7rem;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+}
+
+.login-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.login-links span,
+.login-links a {
+  text-align: center;
+}

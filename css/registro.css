@@ -1,0 +1,101 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #162144, #1e3c72);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.registro-box {
+  width: 360px;
+  background: rgba(30, 60, 114, 0.95);
+  color: #fff;
+  position: relative;
+  box-sizing: border-box;
+  padding: 2.5rem 2rem 2rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px 0 rgba(16, 32, 64, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  background: #fff;
+  object-fit: cover;
+}
+
+.registro-box h1 {
+  margin: 0;
+  padding: 0 0 20px;
+  text-align: center;
+  font-size: 1.7rem;
+  color: #ff9800;
+  letter-spacing: 1px;
+}
+
+.registro-box label {
+  font-size: 1rem;
+  color: white;
+  font-weight: bold;
+  display: block;
+}
+
+.registro-box input {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.registro-box input[type="text"],
+.registro-box input[type="password"],
+.registro-box input[type="email"] {
+  border: none;
+  border-bottom: 1px solid silver;
+  background: transparent;
+  outline: none;
+  height: 40px;
+  color: silver;
+  font-size: 16px;
+}
+
+
+
+.registro-box input[type="submit"] {
+  border: none;
+  outline: none;
+  height: 40px;
+  background-color: #ff9800;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  color: #162144;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 1rem;
+}
+
+.registro-box input[type="submit"]:hover {
+  background-color: #e68900;
+}
+
+.registro-box a {
+  text-decoration: none;
+  font-size: 0.98rem;
+  color: #1e90ff;
+  font-weight: bold;
+  margin-left: 0.3rem;
+  transition: color 0.2s;
+}
+
+.registro-box a:hover {
+  color: #ff9800;
+}
