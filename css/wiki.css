@@ -1,0 +1,215 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #162144, #1e3c72);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    overflow-x: hidden;
+}
+
+.wiki-container {
+    max-width: 900px;
+    margin: 2.5rem auto;
+    background: rgba(30, 60, 114, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(16, 32, 64, 0.25);
+    padding: 2.5rem 2rem 2rem 2rem;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+.wiki-title {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #ff9800;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+.wiki-section {
+    margin-bottom: 2.2rem;
+    word-break: break-word;
+}
+
+.wiki-section h2 {
+    color: #43e97b;
+    font-size: 1.4rem;
+    margin-bottom: 0.7rem;
+    text-align: center;
+}
+
+.wiki-section ul {
+    margin-left: 1.2rem;
+    margin-bottom: 0.7rem;
+    padding-left: 1.2rem;
+    overflow-wrap: break-word;
+}
+
+.wiki-section p {
+    color: #cbd5e1;
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+}
+
+.wiki-imgs {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.7rem;
+  justify-items: center;
+  align-items: center;
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.wiki-imgs img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(16,32,64,0.10);
+  background: #1d2333;
+}
+
+.wiki-cube {
+    display: block;
+    overflow-x: auto;
+    align-items: center;
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.cube-text {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.wiki-link {
+    color: #1e90ff;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.wiki-footer {
+    text-align: center;
+    margin-top: 2.5rem;
+    color: #cbd5e1;
+    font-size: 0.95rem;
+}
+
+.notaciones-flex {
+  display: flex;
+  gap: 2.5rem;
+  justify-content: center;
+  align-items: flex-start;
+}
+.notaciones-flex ul {
+  padding: 1rem 1.5rem;
+  min-width: 220px;
+}
+.notaciones-flex li {
+  margin-bottom: 0.5rem;
+}
+
+.wiki-navbar {
+    background: rgba(30, 60, 114, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(16, 32, 64, 0.15);
+    padding: 0.7rem 1.2rem;
+}
+
+.wiki-navbar ul {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.wiki-navbar li {
+    display: inline-block;
+}
+
+.wiki-navbar a {
+    color: #ff9800;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 1.05rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+}
+
+.wiki-navbar a:hover {
+    background: #ff9800;
+    color: #fff;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(20, 40, 60, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal-box {
+    background: rgba(30, 60, 114, 1);
+    color: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 18px;
+    font-size: 1.5rem;
+    box-shadow: 0 8px 32px rgba(16, 32, 64, 0.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.modal-titulo {
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.modelo3d-placeholder {
+    height: 300px;
+    width: 300px;
+    background-color: #1d2333;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #ccc;
+    text-align: center;
+    padding: 1rem;
+}
+
+.modal-btn {
+    margin-top: 1.2rem;
+    background: #ff9800;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+}

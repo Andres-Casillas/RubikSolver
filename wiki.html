@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki del Proyecto Rubik</title>
+    <link rel="stylesheet" href="/css/wiki.css">
+    <link rel="stylesheet" href="css/Nav.css" />
+</head>
+
+<body>
+    <div id="navbar"></div>
+    <div class="wiki-container">
+        <div class="wiki-title">Wiki del Cubo Rubik</div>
+        <nav class="wiki-navbar">
+            <ul>
+                <li><a id="nav-notacion">Notacion</a></li>
+                <li><a id="nav-cfop">Metodo CFOP</a></li>
+                <li><a id="nav-algoritmos">Algoritmos</a></li>
+            </ul>
+        </nav>
+        <div id="wiki-notacion">
+            <br>
+            <h2 style="text-align: center;">Notacion de los Movimientos del Cubo Rubik</h2>
+            <br>
+            <div class="wiki-section">
+                <h2>Movimientos Basicos</h2>
+                <div class="wiki-imgs">
+                    <div class="wiki-cube" data-rotacion="R">
+                        <img src="imagenes/wiki/R.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">R</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="L">
+                        <img src="imagenes/wiki/L.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">L</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="U">
+                        <img src="imagenes/wiki/U.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">U</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="D">
+                        <img src="imagenes/wiki/D.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">D</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="F">
+                        <img src="imagenes/wiki/F.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">F</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="B">
+                        <img src="imagenes/wiki/B.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">B</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="R'">
+                        <img src="imagenes/wiki/R'.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">R'</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="L'">
+                        <img src="imagenes/wiki/L'.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">L'</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="U'">
+                        <img src="imagenes/wiki/U'.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">U'</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="D'">
+                        <img src="imagenes/wiki/D'.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">D'</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="F'">
+                        <img src="imagenes/wiki/F'.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">F'</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="B'">
+                        <img src="imagenes/wiki/B'.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">B'</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="R2">
+                        <img src="imagenes/wiki/R2.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">R2</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="L2">
+                        <img src="imagenes/wiki/L2.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">L2</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="U2">
+                        <img src="imagenes/wiki/U2.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">U2</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="D2">
+                        <img src="imagenes/wiki/D2.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">D2</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="F2">
+                        <img src="imagenes/wiki/F2.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">F2</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="B2">
+                        <img src="imagenes/wiki/B2.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">B2</div>
+                    </div>
+                </div>
+                <div class="notaciones-flex">
+                    <ul>
+                        <li><strong>R</strong>: Giro de la cara derecha en sentido horario</li>
+                        <li><strong>L</strong>: Giro de la cara izquierda en sentido horario</li>
+                        <li><strong>U</strong>: Giro de la cara superior en sentido horario</li>
+                        <li><strong>D</strong>: Giro de la cara inferior en sentido horario</li>
+                        <li><strong>F</strong>: Giro de la cara frontal en sentido horario</li>
+                        <li><strong>B</strong>: Giro de la cara trasera en sentido horario</li>
+                    </ul>
+                    <ul>
+                        <li><strong>R'</strong>: Giro de la cara derecha en sentido antihorario</li>
+                        <li><strong>L'</strong>: Giro de la cara izquierda en sentido antihorario</li>
+                        <li><strong>U'</strong>: Giro de la cara superior en sentido antihorario</li>
+                        <li><strong>D'</strong>: Giro de la cara inferior en sentido antihorario</li>
+                        <li><strong>F'</strong>: Giro de la cara frontal en sentido antihorario</li>
+                        <li><strong>B'</strong>: Giro de la cara trasera en sentido antihorario</li>
+                    </ul>
+                </div>
+                <p>Un número seguido de la letra indica cuántas veces se realiza el movimiento (ejemplo:
+                    <strong>R2</strong>
+                    = dos giros de la cara derecha).</p>
+                <br>
+            </div>
+            <div class="wiki-section">
+                <h2>Movimientos Amplios</h2>
+                <div class="wiki-imgs">
+                    <div class="wiki-cube" data-rotacion="r">
+                        <img src="imagenes/wiki/Rw.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">Rw / r</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="l">
+                        <img src="imagenes/wiki/Lw.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">Lw / l</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="u">
+                        <img src="imagenes/wiki/Uw.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">Uw / u</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="d">
+                        <img src="imagenes/wiki/Dw.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">Dw / d</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="f">
+                        <img src="imagenes/wiki/Fw.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">Fw / f</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="b">
+                        <img src="imagenes/wiki/Bw.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">Bw / b</div>
+                    </div>
+                </div>
+                <div class="notaciones-flex">
+                    <ul>
+                        <li><strong>Rw / r</strong>: Giro amplio de derecha en sentido horario</li>
+                        <li><strong>Lw / l</strong>: Giro amplio de izquierda en sentido horario</li>
+                        <li><strong>Uw / u</strong>: Giro amplio superior en sentido horario</li>
+                    </ul>
+                    <ul>
+                        <li><strong>Dw / d</strong>: Giro amplio inferior en sentido horario</li>
+                        <li><strong>Fw / f</strong>: Giro amplio frontal en sentido horario</li>
+                        <li><strong>Bw / b</strong>: Giro amplio trasera en sentido horario</li>
+                    </ul>
+                </div>
+                <p>Estos movimientos amplios giran dos capas a la vez. Se pueden escribir de dos maneras minúsculas o
+                    terminando en 'w'.</p>
+                <br>
+            </div>
+            <div class="wiki-section">
+                <h2>Movimientos Centrales</h2>
+                <div class="wiki-imgs" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="wiki-cube" data-rotacion="M">
+                        <img src="imagenes/wiki/M.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">M</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="E">
+                        <img src="imagenes/wiki/E.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">E</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="S">
+                        <img src="imagenes/wiki/S.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">S</div>
+                    </div>
+                </div>
+                <div class="notaciones-flex">
+                    <ul>
+                        <li><strong>M</strong>: Sigue la dirección L</li>
+                        <li><strong>E</strong>: Sigue la dirección D</li>
+                        <li><strong>S</strong>: Sigue la dirección F</li>
+                    </ul>
+                </div>
+                <p>Los movimientos centrales solo giran la capa intermedia. También existen <strong>M'</strong> y
+                    <strong>M2</strong>, etc.
+                </p>
+                <br>
+            </div>
+            <div class="wiki-section">
+                <h2>Rotaciones del cubo</h2>
+                <div class="wiki-imgs" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="wiki-cube" data-rotacion="x">
+                        <img src="imagenes/wiki/x.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">x</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="y">
+                        <img src="imagenes/wiki/y.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">y</div>
+                    </div>
+                    <div class="wiki-cube" data-rotacion="z">
+                        <img src="imagenes/wiki/z.png" alt="Cubo Rubik" class="cube">
+                        <div class="cube-text">z</div>
+                    </div>
+                </div>
+                <div class="notaciones-flex">
+                    <ul>
+                        <li><strong>x</strong>: Sigue la dirección R</li>
+                        <li><strong>y</strong>: Sigue la dirección U</li>
+                        <li><strong>z</strong>: Sigue la dirección F</li>
+                    </ul>
+                </div>
+                <p>También existen <strong>x'</strong> y <strong>x2</strong>, etc.
+                </p>
+                <br>
+            </div>
+        </div>
+        <div id="wiki-cfop" style="display: none;">
+            <br>
+            <h2 style="text-align: center;">Metodo CFOP</h2>
+            <br>
+            <div class="wiki-section">
+                <h2>Paso 1: Cruz</h2>
+                <div class="wiki-imgs" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="wiki-cube">
+                        <img src="imagenes/wiki/cruz1.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                    <div class="wiki-cube" disabled>
+                        <img src="imagenes/wiki/flecha.png" style="background: none;">
+                    </div>
+                    <div class="wiki-cube">
+                        <img src="imagenes/wiki/cruz2.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                </div>
+                <br>
+            </div>
+        </div>
+        <div id="wiki-algoritmos" style="display: none;">
+            <br>
+            <h2 style="text-align: center;">Algoritmos</h2>
+            <br>
+            <div class="wiki-section">
+                <h2>PROXIMAMENTE...</h2>
+                <div class="wiki-imgs" style="grid-template-columns: repeat(1, 1fr);">
+                    <div class="wiki-cube">
+                        <img src="imagenes/wiki/cruz1.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                </div>
+                <br>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="/java/Nav.js"></script>
+</body>
+<script src="/java/wiki.js"></script>
+
+</html>
