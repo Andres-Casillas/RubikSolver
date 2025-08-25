@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   const mount = document.getElementById('navbar');
-
   if (!mount) {
     console.warn('[Nav] No se encontró <div id="navbar"></div> en esta página.');
   } else {
@@ -19,6 +18,14 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .then(html => {
         mount.innerHTML = html;
+        // Mostrar nombre de usuario
+        document.getElementById('perfil').textContent = localStorage.getItem('usuarioLogueado') + ' ▼';
+
+        // Cerrar sesión
+        document.getElementById('salir').addEventListener('click', function () {
+          localStorage.removeItem('usuarioLogueado');
+          window.location.href = 'login.html';
+        });
       })
       .catch(err => {
         console.error('[Nav] Error cargando navbar.html:', navbarURL.href, err);

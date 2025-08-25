@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil de Usuario</title>
+  <link rel="stylesheet" href="/css/perfil.css">
+  <link rel="stylesheet" href="css/Nav.css" />
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="perfil-container">
+    <img src="" id="avatar" class="perfil-avatar">
+    <div class="perfil-titulo" id="perfil-nombre">Usuario</div>
+    <div class="perfil-info">
+      <div><strong>Usuario:</strong> <span id="perfil-usuario">-</span></div>
+      <div><strong>Email:</strong> <span id="perfil-email">-</span></div>
+      <div><strong>Tipo:</strong> <span id="perfil-tipo">-</span></div>
+    </div>
+  </div>
+  <div class="perfil-config">
+    <div class="perfil-titulo">Configuración</div>
+    <nav class="perfil-navbar">
+      <ul>
+        <li><a id="nav-foto">Foto Perfil</a></li>
+        <li><a id="nav-password">Contraseña</a></li>
+        <li><a id="nav-email">Correo</a></li>
+        <li><a id="nav-eliminar" style="color: #ff5e62;">Eliminar Cuenta</a></li>
+      </ul>
+    </nav>
+    <div id="perfil-config-content"></div>
+  </div>
+  <script type="module" src="java/Nav.js"></script>
+</body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/java/perfil.js"></script>
+</html>

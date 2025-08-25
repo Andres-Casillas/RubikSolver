@@ -1,0 +1,180 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #162144, #1e3c72);
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    overflow-x: hidden;
+}
+
+.perfil-container,
+.perfil-config {
+    min-width: 300px;
+    margin: 3rem auto;
+    background: rgba(30, 60, 114, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(16, 32, 64, 0.25);
+    padding: 2.5rem 2rem 2rem 2rem;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.perfil-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    margin-bottom: 1.2rem;
+    object-fit: cover;
+    box-shadow: 0 0px 20px 10px rgba(0, 0, 0, 0.15);
+}
+
+.perfil-titulo {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #ff9800;
+    margin-bottom: 0.7rem;
+    letter-spacing: 1px;
+}
+
+.perfil-info {
+    width: 100%;
+    margin-bottom: 1.2rem;
+    font-size: 1.05rem;
+    color: #cbd5e1;
+    text-align: left;
+}
+
+.perfil-btn {
+    background-color: #1e90ff;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 1rem;
+}
+
+.perfil-btn:hover {
+    background-color: #1674d8;
+}
+
+.perfil-navbar {
+    background: rgba(30, 60, 114, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(16, 32, 64, 0.15);
+    padding: 0.7rem 1.2rem;
+}
+
+.perfil-navbar ul {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.perfil-navbar li {
+    display: inline-block;
+}
+
+.perfil-navbar a {
+    color: #ff9800;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 1.05rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+}
+
+.perfil-navbar a:hover {
+    background: #ff9800;
+    color: #fff;
+}
+
+#perfil-config-content {
+    background: rgba(30, 60, 114, 0.95);
+    margin-top: 1.5rem;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.form label {
+    font-weight: bold;
+    color: #ff9800;
+    margin-bottom: 0.3rem;
+}
+
+.form input {
+    width: 50%;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: none;
+    background: #1d2333;
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 0.7rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: background 0.2s;
+}
+
+.form input:focus {
+    background: #22305a;
+    outline: none;
+}
+
+.form .perfil-btn {
+    margin-top: 0.7rem;
+    width: 100%;
+}
+
+.foto-option {
+    display: inline-block;
+    margin: 0.5rem;
+    text-align: center;
+}
+
+.foto-option img {
+    border-radius: 12px;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.foto-option input {
+    display: none;
+}
+
+.foto-option:hover img {
+    transform: scale(1.05);
+}
+
+.foto-option input:checked + img {
+    border: 2px solid #ff9800;
+}
+
+.perfil-fotos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 700px;
+    margin: 0 auto;
+}

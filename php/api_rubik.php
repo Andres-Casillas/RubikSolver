@@ -52,5 +52,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     exit;
 }
 
-// Si no es login ni registro
+// Actualizar usuario
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar'])) {
+    // si es password
+    if ($_POST['actualizar'] === 'password') {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $stmt = $conexion->prepare("UPDATE usuarios SET password = ? WHERE username = ?");
+        $stmt->bind_param("ss", $password, $username);
+        if ($stmt->execute()) {
+            echo json_encode(["success" => true, "message" => "Contraseña actualizada correctamente"]);
+        } else {
+            echo json_encode(["success" => false, "message" => "Error al actualizar contraseña"]);
+        }
+        $stmt->close();
+        exit;
+    }
+
+    if ($_POST['actualizar'] === 'email') {
+        $username = $_POST['username'];
+        $email = $_POST['email'];
+        $stmt = $conexion->prepare("UPDATE usuarios SET email = ? WHERE username = ?");
+        $stmt->bind_param("ss", $email, $username);
+        if ($stmt->execute()) {
+            echo json_encode(["success" => true, "message" => "Email actualizado correctamente"]);
+        } else {
+            echo json_encode(["success" => false, "message" => "Error al actualizar email"]);
+        }
+        $stmt->close();
+        exit;
+    }
+
+    // actualizar foto
+    if ($_POST['actualizar'] === 'foto') {
+        $username = $_POST['username'];
+        $foto = $_POST['photo'];
+        $stmt = $conexion->prepare("UPDATE usuarios SET photo = ? WHERE username = ?");
+        $stmt->bind_param("is", $foto, $username);
+        if ($stmt->execute()) {
+            echo json_encode(["success" => true, "message" => "Foto actualizada correctamente"]);
+        } else {
+            echo json_encode(["success" => false, "message" => "Error al actualizar foto"]);
+        }
+        $stmt->close();
+        exit;
+    }
+
+    echo json_encode(["success" => true, "message" => "Usuario actualizado correctamente"]);
+    } else {
+        echo json_encode(["success" => false, "message" => "Error al actualizar usuario"]);
+    }
+    $stmt->close();
+    exit;
+
+// Eliminar usuario
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $stmt = $conexion->prepare("DELETE FROM usuarios WHERE username = ? AND password = ?");
+    $stmt->bind_param("ss", $username, $password);
+    if ($stmt->execute()) {
+        echo json_encode(["success" => true, "message" => "Usuario eliminado correctamente"]);
+    } else {
+        echo json_encode(["success" => false, "message" => "Error al eliminar usuario"]);
+    }
+    $stmt->close();
+    exit;
+}
+
 echo json_encode(["success" => false, "message" => "Petición inválida"]);
