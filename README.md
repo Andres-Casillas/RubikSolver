@@ -23,3 +23,5 @@
 
 ```bash
 git clone https://github.com/Andres-Casillas/RubikSolver.git
+
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Andres-Casillas/RubikSolver)
