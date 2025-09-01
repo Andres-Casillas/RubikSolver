@@ -17,7 +17,13 @@
             <ul>
                 <li><a id="nav-notacion">Notacion</a></li>
                 <li><a id="nav-cfop">Metodo CFOP</a></li>
-                <li><a id="nav-algoritmos">Algoritmos</a></li>
+                <li class="dropdown">
+                    <a id="nav-algoritmos">Algoritmos</a>
+                    <div class="nav-dropdown">
+                        <a id="nav-algoritmos-oll">OLL</a>
+                        <a id="nav-algoritmos-pll">PLL</a>
+                    </div>
+                </li>
             </ul>
         </nav>
         <div id="wiki-notacion">
@@ -120,7 +126,8 @@
                 </div>
                 <p>Un número seguido de la letra indica cuántas veces se realiza el movimiento (ejemplo:
                     <strong>R2</strong>
-                    = dos giros de la cara derecha).</p>
+                    = dos giros de la cara derecha).
+                </p>
                 <br>
             </div>
             <div class="wiki-section">
@@ -225,33 +232,224 @@
         </div>
         <div id="wiki-cfop" style="display: none;">
             <br>
-            <h2 style="text-align: center;">Metodo CFOP</h2>
+            <h2 style="text-align: center;">Guía Método CFOP</h2>
             <br>
             <div class="wiki-section">
-                <h2>Paso 1: Cruz</h2>
+                <h2>Paso 1: Cruz (Cross)</h2>
                 <div class="wiki-imgs" style="grid-template-columns: repeat(3, 1fr);">
-                    <div class="wiki-cube">
+                    <div class="wiki-cubena">
                         <img src="imagenes/wiki/cruz1.png" alt="Cubo Rubik" class="cube">
                     </div>
-                    <div class="wiki-cube" disabled>
+                    <div class="wiki-cubena">
                         <img src="imagenes/wiki/flecha.png" style="background: none;">
                     </div>
-                    <div class="wiki-cube">
+                    <div class="wiki-cubena">
                         <img src="imagenes/wiki/cruz2.png" alt="Cubo Rubik" class="cube">
                     </div>
                 </div>
+                <div class="notaciones-flex">
+                    <p>
+                        El primer paso consiste en formar una cruz en la cara blanca del cubo, asegurándote de que los
+                        bordes blancos coincidan también con los colores de los centros laterales. Es importante alinear
+                        correctamente los bordes para facilitar los siguientes pasos.
+                    </p>
+                    <br>
+                </div>
+            </div>
+            <div class="wiki-section">
+                <h2>Paso 2: F2L (First Two Layers)</h2>
+                <div class="wiki-imgs" style="grid-template-columns: repeat(5, 1fr);">
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/f2l1.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/flecha.png" style="background: none;">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/f2l2.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/flecha.png" style="background: none;">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/f2l3.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                </div>
+                <div class="notaciones-flex">
+                    <p>
+                        En este paso se resuelven simultáneamente las esquinas y aristas de las dos primeras capas. El
+                        objetivo es insertar cada par (esquina y arista) en su posición correspondiente, optimizando los
+                        movimientos y evitando deshacer la cruz.
+                    </p>
+                    <br>
+                </div>
+            </div>
+            <div class="wiki-section">
+                <h2>Paso 3: OLL (Orientation of Last Layer)</h2>
+                <div class="wiki-imgs" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/oll1.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/flecha.png" style="background: none;">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/oll2.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                </div>
+                <div class="notaciones-flex">
+                    <p>
+                        Aquí se orientan todas las piezas de la última capa para que muestren el mismo color en la cara
+                        superior. Existen 57 casos posibles, pero puedes empezar aprendiendo los algoritmos más sencillos
+                        para los casos básicos.
+                    </p>
+                </div>
+                <br>
+            </div>
+            <div class="wiki-section">
+                <h2>Paso 4: PLL (Permutation of Last Layer)</h2>
+                <div class="wiki-imgs" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/pll1.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/flecha.png" style="background: none;">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/pll2.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                </div>
+                <div class="notaciones-flex">
+                    <p>
+                        El último paso consiste en permutar las piezas de la última capa para completar el cubo. Hay 21
+                        casos posibles, pero con práctica puedes aprender los algoritmos más usados para resolver cualquier
+                        permutación.
+                    </p>
+                    <br>
+                </div>
+            </div>
+            <div class="wiki-section">
+                <h2>Consejos</h2>
+                <ul>
+                    <li>Practica cada paso por separado antes de intentar resolver el cubo completo con CFOP.</li>
+                    <li>Aprende los algoritmos básicos y luego avanza a los avanzados para mejorar tu velocidad.</li>
+                    <li>Observa cómo afectan los movimientos a las piezas para entender mejor la lógica detrás de cada
+                        algoritmo.</li>
+                </ul>
                 <br>
             </div>
         </div>
-        <div id="wiki-algoritmos" style="display: none;">
+        <div id="wiki-algoritmos-oll" style="display: none;">
             <br>
             <h2 style="text-align: center;">Algoritmos</h2>
             <br>
             <div class="wiki-section">
-                <h2>PROXIMAMENTE...</h2>
-                <div class="wiki-imgs" style="grid-template-columns: repeat(1, 1fr);">
-                    <div class="wiki-cube">
-                        <img src="imagenes/wiki/cruz1.png" alt="Cubo Rubik" class="cube">
+                <h2>OLL (Orientation of Last Layer)</h2>
+                <div class="wiki-imgs" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/oll1.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/flecha.png" style="background: none;">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/oll2.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                </div>
+                <div class="notaciones-flex">
+                    <p>En <strong>OLL</strong> (Orientation of Last Layer) se orientan todas las piezas de la 
+                        última capa para que muestren el mismo color en la cara superior.</p>
+                </div>
+                <br>
+                <div class="wiki-imgs" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="wiki-cubez" data-alg="F R U R' U' F' f R U R' U' f'" data-img="oll/1">
+                        <img src="imagenes/wiki/oll/1.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">F R U R' U' F' f R U R' U' f'</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="F R U R' U' F'" data-img="oll/2">
+                        <img src="imagenes/wiki/oll/2.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">F R U R' U' F'</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="f R U R' U' f'" data-img="oll/3">
+                        <img src="imagenes/wiki/oll/3.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">f R U R' U' f'</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="R U2 R' U' R U' R'" data-img="oll/4">
+                        <img src="imagenes/wiki/oll/4.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">R U2 R' U' R U' R'</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="R U R' U R U' R' U R U2 R'" data-img="oll/5">
+                        <img src="imagenes/wiki/oll/5.png" alt="Cubo Rubik" class="oll/cube">
+                        <div style="font-weight: bold;">R U R' U R U' R' U R U2 R'</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="F R' F' r U R U' r'" data-img="oll/6">
+                        <img src="imagenes/wiki/oll/6.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">F R' F' r U R U' r'</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="R U2 R2 U' R2 U' R2 U2 R" data-img="oll/7">
+                        <img src="imagenes/wiki/oll/7.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">R U2 R2 U' R2 U' R2 U2 R</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="R U R' U R U2 R'" data-img="oll/8">
+                        <img src="imagenes/wiki/oll/8.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">R U R' U R U2 R'</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="r U R' U' r' F R F'" data-img="oll/9">
+                        <img src="imagenes/wiki/oll/9.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">r U R' U' r' F R F'</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="R2 D R' U2 R D' R' U2 R'" data-img="oll/10">
+                        <img src="imagenes/wiki/oll/10.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">R2 D R' U2 R D' R' U2 R'</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="wiki-algoritmos-pll" style="display: none;">
+            <br>
+            <h2 style="text-align: center;">Algoritmos</h2>
+            <br>
+            <div class="wiki-section">
+                <h2>PLL (Permutation of Last Layer)</h2>
+                <div class="wiki-imgs" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/pll1.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/flecha.png" style="background: none;">
+                    </div>
+                    <div class="wiki-cubena">
+                        <img src="imagenes/wiki/pll2.png" alt="Cubo Rubik" class="cube">
+                    </div>
+                </div>
+                <div class="notaciones-flex">
+                    <p>El último paso consiste en permutar las piezas de la última capa para completar el cubo.</p>
+                    <br>
+                </div>
+                <div class="wiki-imgs" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="wiki-cubez" data-alg="F R U' R' U' R U R' F' R U R' U' R' F R F'" data-img="pll/1">
+                        <img src="imagenes/wiki/pll/1.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">F R U' R' U' R U R' F' R U R' U' R' F R F'</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="R U R' U' R' F R2 U' R' U' R U R' F'" data-img="pll/2">
+                        <img src="imagenes/wiki/pll/2.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">R U R' U' R' F R2 U' R' U' R U R' F'</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="M2 U M2 U2 M2 U M2" data-img="pll/3">
+                        <img src="imagenes/wiki/pll/3.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">M2 U M2 U2 M2 U M2</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="M2 U M U2 M' U M2" data-img="pll/4">
+                        <img src="imagenes/wiki/pll/4.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">M2 U M U2 M' U M2</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="M2 U' M U2 M' U' M2" data-img="pll/5">
+                        <img src="imagenes/wiki/pll/5.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">M2 U' M U2 M' U' M2</div>
+                    </div>
+                    <div class="wiki-cubez" data-alg="M' U M2 U M2 U M' U2 M2" data-img="pll/6">
+                        <img src="imagenes/wiki/pll/6.png" alt="Cubo Rubik" class="cube">
+                        <div style="font-weight: bold;">M' U M2 U M2 U M' U2 M2</div>
                     </div>
                 </div>
                 <br>
