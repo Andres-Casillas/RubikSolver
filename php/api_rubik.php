@@ -2,6 +2,36 @@
 include "conexion.php";
 header('Content-Type: application/json');
 
+//get top 10
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['top'])) {
+    $stmt = $conexion->prepare("SELECT * FROM top ORDER BY tiempo ASC LIMIT 10");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $tiempos = [];
+    while ($row = $result->fetch_assoc()) {
+        $tiempos[] = $row;
+    }
+    echo json_encode(["success" => true, "tiempos" => $tiempos]);
+    $stmt->close();
+    exit;
+}
+
+//insert top
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['insert_top'])) {
+    $username = $_POST['username'];
+    $tiempo = $_POST['tiempo'];
+    $algoritmo = $_POST['algoritmo'];
+    $stmt = $conexion->prepare("INSERT INTO top (usuario, tiempo, algoritmo) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $username, $tiempo, $algoritmo);
+    if ($stmt->execute()) {
+        echo json_encode(["success" => true, "message" => "Tiempo guardado correctamente"]);
+    } else {
+        echo json_encode(["success" => false, "message" => "Error al guardar tiempo"]);
+    }
+    $stmt->close();
+    exit;
+}
+
 // Get user data
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['get_user'])) {
     $username = $_POST['username'];
