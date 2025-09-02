@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const usuario = localStorage.getItem('usuarioLogueado');
 
-    if (usuario === 'invitado') {
+    if (usuario === 'Invitado') {
         mostrarModalNoDisponible();
     }
 

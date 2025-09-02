@@ -21,7 +21,7 @@ body {
     margin: 2.5rem auto;
     background: rgba(30, 60, 114, 0.95);
     border-radius: 16px;
-    box-shadow: 0 8px 32px 0 rgba(16, 32, 64, 0.25);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     padding: 2.5rem 2rem 2rem 2rem;
     color: #fff;
     box-sizing: border-box;
@@ -31,7 +31,6 @@ body {
     font-size: 2.2rem;
     font-weight: bold;
     color: #ff9800;
-    margin-bottom: 1.5rem;
     text-align: center;
     letter-spacing: 1px;
 }
@@ -148,7 +147,7 @@ body {
     background: rgba(20, 40, 60, 0.45);
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(16, 32, 64, 0.15);
-    padding: 0.7rem 1.2rem;
+    padding: 0.5rem 1.2rem;
 }
 
 .wiki-navbar ul {
@@ -162,9 +161,12 @@ body {
 
 .wiki-navbar li {
     display: inline-block;
+    align-content: center;
 }
 
-.wiki-navbar a {
+.wiki-navbar a, .wiki-navbar button {
+    background: none;
+    border-style: none;
     color: #ff9800;
     font-weight: bold;
     text-decoration: none;
@@ -175,7 +177,7 @@ body {
     cursor: pointer;
 }
 
-.wiki-navbar a:hover {
+.wiki-navbar a:hover, .wiki-navbar button:hover {
     background: #ff9800;
     color: #fff;
 }
@@ -243,7 +245,6 @@ body {
 .nav-dropdown {
     display: none;
     position: absolute;
-    top: 30px;
     background-color: #0e152c;
     min-width: 128px;
     border-radius: 8px;
@@ -273,4 +274,32 @@ body {
     display: block;
     opacity: 1;
     transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+    .wiki-container {
+        max-width: 98vw;
+        padding: 1.2rem 0.5rem 1rem 0.5rem;
+    }
+    .wiki-section h2 {
+        font-size: 1.1rem;
+    }
+    .wiki-imgs {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 98vw;
+        gap: 0.5rem;
+    }
+    .wiki-imgs img {
+        width: 80px;
+        height: 80px;
+    }
+    .notaciones-flex {
+        flex-direction: column;
+        gap: 1.2rem;
+        align-items: stretch;
+    }
+    .wiki-navbar ul {
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
 }

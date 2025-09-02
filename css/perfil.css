@@ -178,3 +178,25 @@ body {
     max-width: 700px;
     margin: 0 auto;
 }
+
+@media (max-width: 900px) {
+    .perfil-config {
+        min-width: 0;
+        width: 98vw;
+        padding: 1.2rem 0.5rem 1rem 0.5rem;
+        border-radius: 10px;
+    }
+    #perfil-config-content {
+        max-width: 98vw;
+        padding: 0.5rem;
+        gap: 0.7rem;
+    }
+    .form input {
+        width: 90%;
+        font-size: 0.95rem;
+    }
+    .perfil-navbar ul {
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+}

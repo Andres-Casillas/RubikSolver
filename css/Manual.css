@@ -5,22 +5,26 @@
 }
 
 body {
-  background-color: #0a0f1f;
+  background: linear-gradient(135deg, #162144, #1e3c72);
   color: #fff;
   font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
   text-align: center;
   padding: 1.5rem;
 }
 
-h1 {
-  font-size: 1.8rem;
-  margin-bottom: 2rem;
-  color: #ffffff;
+.title {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #ff9800;
+    text-align: center;
+    letter-spacing: 1px;
+    padding-bottom: 9px;
 }
 
 .cubo-panel {
   max-width: 400px;
-  margin: auto;
+  margin: 2.5rem auto;
   background-color: #1c2330;
   border-radius: 1rem;
   padding: 1.5rem;

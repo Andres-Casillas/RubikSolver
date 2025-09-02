@@ -49,8 +49,17 @@ main {
   margin: 0 auto;
 }
 
+.title {
+    font-size: 2.2rem;
+    font-weight: bold;
+    color: #ff9800;
+    text-align: center;
+    letter-spacing: 1px;
+    padding-bottom: 9px;
+}
+
 .caso {
-  background-color: #1e293b;
+  background: rgba(30, 60, 114, 0.95);
   padding: 1.5rem;
   border-radius: 1rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
@@ -64,7 +73,7 @@ main {
 }
 
 .placeholder-modelo {
-  background-color: #0f172a;
+  background-color: #1e293b;
   border: 2px dashed #3b82f6;
   border-radius: 1rem;
   padding: 3rem;
@@ -143,7 +152,7 @@ p.info {
 }
 
 #tiempos {
-  background: #0f172a;
+  background: #1e293b;
   border-radius: 1rem;
   padding: 1rem 2rem;
   box-shadow: 0 0 8px rgba(59, 130, 246, 0.15);
@@ -164,10 +173,11 @@ p.info {
 }
 
 #tiempos li:not(.empty):hover {
-  background: #1e293b;
+  background: rgba(255, 255, 255, 0.1);
   color: #60a5fa;
   cursor: pointer;
   border-radius: 0.5rem;
+  padding-left: 0.5rem;
 }
 
 #tiempos li.empty {
@@ -191,7 +201,7 @@ p.info {
 .modal-contenido {
   background: rgba(30, 60, 114, 1);
   padding: 2em;
-  border-radius: 8px;
+  border-radius: 1rem;
   min-width: 250px;
   max-width: 90vw;
   position: relative;
