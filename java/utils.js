@@ -35,6 +35,11 @@ export function conexionPython(cubo) {
         .then(response => response.json())
         .then(data => {
             console.log('Respuesta del servidor:', data);
+            //almacena en localStorage la solucion
+            localStorage.setItem('solucion', JSON.stringify(data.solucion));
+            //redirige a solucion.html con la secuencia en la URL
+            //const solucionStr = encodeURIComponent(JSON.stringify(data.solucion));
+            window.location.href = `solucion.html`;
         })
         .catch(error => {
             console.error('Error:', error);

@@ -177,6 +177,10 @@ function actualizarCara() {
   etiqueta.innerText = ['Cara Frontal','Cara Derecha','Cara Posterior','Cara Izquierda','Cara Superior','Cara Inferior'][caraActual];
 }
 
+document.getElementById('regresar').addEventListener('click', () => {
+  window.location.href = 'resolver.html';
+});
+
 // Inicializar
 actualizarCara();
 restoreWorkingState();

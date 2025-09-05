@@ -5,12 +5,14 @@
 }
 
 body {
+  font-family: 'Segoe UI', sans-serif;
   background: linear-gradient(135deg, #162144, #1e3c72);
   color: #fff;
-  font-family: 'Segoe UI', sans-serif;
   min-height: 100vh;
-  text-align: center;
-  padding: 1.5rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .title {
@@ -22,13 +24,33 @@ body {
     padding-bottom: 9px;
 }
 
-.cubo-panel {
+.manual-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  width: 100%;
+  max-width: 900px;
+}
+
+.cubo-panel,
+.modelo3d-placeholder  {
   max-width: 400px;
   margin: 2.5rem auto;
   background-color: #1c2330;
   border-radius: 1rem;
   padding: 1.5rem;
   box-shadow: 0 0 30px rgba(0,0,0,0.3);
+}
+
+.cara {
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  padding: 0.5rem;
+  background: #1a2433;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border-radius: 0.3rem;
 }
 
 .header {
@@ -118,25 +140,27 @@ body {
   background-color: #009e7f;
 }
 
-.regresar-contenedor {
-  text-align: left;
-  margin-bottom: 1rem;
-}
-
-.btn-regresar {
-  background-color: transparent;
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 1rem;
-  padding: 0.4rem 0.8rem;
-  border: 2px solid #1e90ff;
-  border-radius: 6px;
-  transition: background-color 0.2s ease;
-}
-
-.btn-regresar:hover {
+.boton {
   background-color: #1e90ff;
   color: white;
+  text-decoration: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+  border: none;
+}
+
+.boton:hover {
+  background-color: #1674d8;
+}
+
+.boton.secundario {
+  background-color: #555;
+}
+
+.boton.secundario:hover {
+  background-color: #444;
 }
 
 .W { background-color: white; }

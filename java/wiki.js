@@ -53,9 +53,9 @@ function mostrarModalRotacion(titulo) {
     title.style.letterSpacing = '1px';
     title.style.textAlign = 'center';
 
-    const modelo3d = document.createElement('div');
-    modelo3d.className = 'modelo-placeholder';
-    modelo3d.textContent = 'Modelo 3D';
+    const iframe = document.createElement('iframe');
+    iframe.src = `./Cubo3D.html?auto=true&secuencia=["${encodeURIComponent(titulo)}"]`;
+    iframe.className = 'modelo-placeholder';
 
     const closeBtn = document.createElement('button');
     closeBtn.textContent = 'Cerrar';
@@ -71,7 +71,7 @@ function mostrarModalRotacion(titulo) {
     });
 
     box.appendChild(title);
-    box.appendChild(modelo3d);
+    box.appendChild(iframe);
     box.appendChild(closeBtn);
     modal.appendChild(box);
     document.body.appendChild(modal);

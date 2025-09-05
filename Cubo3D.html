@@ -13,18 +13,10 @@
     </style>
   </head>
   <body>
-    <div id="info">
-      <div>🎮 <strong>Cubo Rubik 3×3 Interactivo</strong></div>
-      <div id="step-info">Listo para comenzar</div>
-      <div id="move-description">Presiona un botón para comenzar</div>
-    </div>
-
     <div id="controls">
       <button class="control-btn" id="prev-btn" disabled>⬅️ Anterior</button>
       <button class="control-btn" id="next-btn" disabled>Siguiente ➡️</button>
       <button class="control-btn" id="reset-btn">🔄 Reiniciar</button>
-      <button class="control-btn" id="pause-btn" disabled>⏸️ Pausar</button>
-      <button class="control-btn" id="load-sequence-btn">📝 Cargar Secuencia</button>
       <div id="speed-control">
         Velocidad: <input type="range" id="speed-slider" min="100" max="1000" value="300" step="50">
         <span id="speed-value">300ms</span>
@@ -43,6 +35,7 @@
     <script type="module">
       import * as THREE from "three";
       import { OrbitControls } from "three/controls/OrbitControls.js";
+  import { RoundedBoxGeometry } from "https://cdn.jsdelivr.net/npm/three@0.156.0/examples/jsm/geometries/RoundedBoxGeometry.js";
 
       // Ajustes
       const DEBUG = false;
@@ -50,17 +43,19 @@
 
       // Escena
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0f0f13);
+      scene.background = new THREE.Color(0x162144);
       const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
       camera.position.set(4, 4, 6);
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(innerWidth, innerHeight);
       renderer.shadowMap.enabled = true;
       document.body.appendChild(renderer.domElement);
-      new OrbitControls(camera, renderer.domElement);
-
-      scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-      const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+      const controls = new OrbitControls(camera, renderer.domElement);
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+      hemiLight.position.set(0, 5, 0);
+      scene.add(hemiLight);
+      scene.add(new THREE.AmbientLight(0xffffff, 1));
+      const dir = new THREE.DirectionalLight(0xffffff, 1.5);
       dir.position.set(5, 5, 5);
       dir.castShadow = true;
       scene.add(dir);
@@ -80,7 +75,7 @@
 
       // Parámetros cubo
       const cubieSize = 0.95;
-      const gap = 0.1;
+      const gap = 0.01;
       const spacing = cubieSize + gap;
       let animationDuration = 300;
       const DEFAULT_GRAY = 0x222222;
@@ -156,14 +151,10 @@
       class Cubie extends THREE.Mesh {
         constructor(pos, size) {
           super();
-          this.geometry = new THREE.BoxGeometry(size, size, size);
+          this.geometry = new RoundedBoxGeometry(size, size, size, 4, 0.12);
           const mats = [];
           for (let i = 0; i < 6; i++) mats.push(new THREE.MeshLambertMaterial({ color: 0x111111 }));
           this.material = mats;
-
-          const edges = new THREE.EdgesGeometry(this.geometry);
-          this.add(new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000 })));
-
           this.position.set(pos[0] * spacing, pos[1] * spacing, pos[2] * spacing);
           this.rotation.set(0,0,0);
           this.userData.cubePos = [...pos];
@@ -195,6 +186,27 @@
         if (DEBUG) console.log('🎨 setAllGray aplicado');
       }
 
+      function setDefaultColors() {
+        const defaultFaces = {
+          U: [['Y','Y','Y'],['Y','Y','Y'],['Y','Y','Y']],
+          F: [['B','B','B'],['B','B','B'],['B','B','B']],
+          D: [['W','W','W'],['W','W','W'],['W','W','W']],
+          B: [['G','G','G'],['G','G','G'],['G','G','G']],
+          L: [['O','O','O'],['O','O','O'],['O','O','O']],
+          R: [['R','R','R'],['R','R','R'],['R','R','R']]
+        };
+        paintFromFaces(defaultFaces);
+        cubeState = [
+          defaultFaces.U,
+          defaultFaces.F,
+          defaultFaces.D,
+          defaultFaces.B,
+          defaultFaces.L,
+          defaultFaces.R
+        ];
+        if (DEBUG) console.log('🎨 setDefaultColors aplicado');
+      }
+
       // Secuencias y animación
       let moveSequence = [];
       let currentMoveIndex = -1;
@@ -203,14 +215,23 @@
       let animationId = null;
 
       // Signos por cara (alineado con notación)
-      const FACE_SIGN = { U: 1, D: -1, F: 1, B: -1, L: -1, R: 1 };
+      const FACE_SIGN = { U: 1, D: -1, F: 1, B: -1, L: -1, R: 1, M: -1, E: -1, S: 1 };
 
       function parseMove(move) {
-        const face = move[0];
+        console.log('parseMove recibido:', move);
+        let face = move[0];
         const primed = move.includes("'");
         const double = move.includes("2");
 
-        const axisMap = { U: "y", D: "y", F: "z", B: "z", L: "x", R: "x" };
+        // Soporte para wide moves: r y d
+        let isWide = false;
+        if (face === 'r' || face === 'd' || face === 'l' || face === 'f' || face === 'u' || face === 'b'
+            || face === 'y' || face === 'z' || face === 'x') {
+          isWide = true;
+          face = face.toUpperCase();
+        }
+
+        const axisMap = { U: "y", D: "y", F: "z", B: "z", L: "x", R: "x", Y: "y", M: "x", E: "y", S: "z", X: "x", Z: "z" };
         const layerMap = {
           U: (p) => isClose(p[1], 1),
           D: (p) => isClose(p[1], -1),
@@ -218,14 +239,33 @@
           B: (p) => isClose(p[2], -1),
           L: (p) => isClose(p[0], -1),
           R: (p) => isClose(p[0], 1),
+          M: (p) => isClose(p[0], 0),
+          E: (p) => isClose(p[1], 0),
+          S: (p) => isClose(p[2], 0),
+          // Wide moves:
+          r: (p) => isClose(p[0], 1) || isClose(p[0], 0),
+          d: (p) => isClose(p[1], -1) || isClose(p[1], 0),
+          l: (p) => isClose(p[0], -1) || isClose(p[0], 0),
+          f: (p) => isClose(p[2], 1) || isClose(p[2], 0),
+          u: (p) => isClose(p[1], 1) || isClose(p[1], 0),
+          b: (p) => isClose(p[2], -1) || isClose(p[2], 0),
+          y: (p) => true,
+          z: (p) => true,
+          x: (p) => true
         };
 
+        // Para 'M', invertir la dirección para que coincida con la notación estándar
         const quarterTurns = double ? 2 : 1;
-        const dir = primed ? -1 : 1;
+        let dir = primed ? 1 : -1;
         const angle = quarterTurns * dir * (FACE_SIGN[face] ?? 1);
 
-        if (DEBUG) console.log(`parseMove ${move}: axis=${axisMap[face]} angle(q)=${angle}`);
-        return { face, axis: axisMap[face], layerFilter: layerMap[face], angle };
+        if (DEBUG) console.log(`parseMove ${move}: axis=${axisMap[face]} angle(q)=${angle} wide=${isWide}`);
+        return {
+          face,
+          axis: axisMap[face],
+          layerFilter: isWide ? layerMap[move[0]] : layerMap[face],
+          angle
+        };
       }
 
       function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
@@ -459,9 +499,15 @@
           inverseMoves.push(m.includes("'") ? m.replace("'", "") : (m.includes("2") ? m : m + "'"));
         }
         let idx = 0;
+        const originalDuration = animationDuration;
         function execNext() {
           if (idx < inverseMoves.length) {
-            animateMovement(inverseMoves[idx], () => { idx++; execNext(); });
+            const prevDuration = animationDuration;
+            animationDuration = 110;
+            animateMovement(inverseMoves[idx], () => {
+              animationDuration = prevDuration;
+              idx++; execNext();
+            });
           } else {
             currentMoveIndex = -1;
             updateUI(); updateMoveDescription();
@@ -540,19 +586,46 @@
       const embed = params.get('embed');
       if (embed && ['1','true','yes'].includes(embed?.toLowerCase?.())) setUIVisible(false);
 
+      const secuenciaParams = params.get('secuencia');
+      if (secuenciaParams) {
+        const secuencia = JSON.parse(decodeURIComponent(secuenciaParams));
+        loadSequence(secuencia);
+      }
+
+      const auto = params.get('auto');
+      if (auto && ['1','true','yes'].includes(auto.toLowerCase())) {
+        controls.enableRotate = false;
+        controls.enableZoom = false;
+        controls.enablePan = false;
+        setUIVisible(false);
+        setDefaultColors();
+
+        let autorunSequence = [];
+        const secuenciaParams = params.get('secuencia');
+        if (secuenciaParams) {
+          try {
+            autorunSequence = JSON.parse(decodeURIComponent(secuenciaParams));
+          } catch (e) {
+            console.warn('Secuencia inválida en parámetro:', secuenciaParams);
+          }
+        }
+        loadSequence(autorunSequence);
+        function runAllSteps(idx = 0) {
+          if (idx < moveSequence.length) {
+            animateMovement(moveSequence[idx], () => runAllSteps(idx + 1));
+            currentMoveIndex = idx;
+            updateUI(); updateMoveDescription();
+          }
+        }
+        setTimeout(() => {
+          runAllSteps();
+        }, 1000);
+      }
+
       document.getElementById('next-btn')?.addEventListener('click', () => nextMove());
       document.getElementById('prev-btn')?.addEventListener('click', () => previousMove());
       document.getElementById('reset-btn')?.addEventListener('click', () => resetCube());
       document.getElementById('pause-btn')?.addEventListener('click', () => togglePause());
-      document.getElementById('load-sequence-btn')?.addEventListener('click', () => {
-        const sequences = [
-          ["R", "U'", "F", "L2", "D"],
-          ["R", "U", "R'", "F", "R", "F'"],
-          ["F", "R", "U'", "R'", "U'", "R", "U", "R'", "F'"],
-          ["R", "U", "R'", "U", "R", "U2", "R'"]
-        ];
-        loadSequence(sequences[Math.floor(Math.random() * sequences.length)]);
-      });
       const speedSlider = document.getElementById('speed-slider');
       const speedValue = document.getElementById('speed-value');
       speedSlider?.addEventListener('input', (e) => {
