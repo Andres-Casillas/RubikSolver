@@ -38,6 +38,7 @@ function persistWorkingState() {
 function persistMatrix3D() {
   const matrix3D = buildMatrixFor3D(matriz);
   localStorage.setItem(STORAGE_KEYS.matrix3D, JSON.stringify(matrix3D));
+  window.dispatchEvent(new CustomEvent('rubik:matrix3d', { detail: matrix3D }));
 }
 
 function restoreWorkingState() {

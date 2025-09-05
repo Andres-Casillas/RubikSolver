@@ -57,8 +57,13 @@
     const api = () => iframe.contentWindow?.RubikCube;
     const setSpeed = (v) => { try { api()?.setAnimationSpeed?.(v); } catch {} speedValue.textContent = `${v}ms`; };
 
-    // Inicializa cubo en gris al cargar o al primer bind
-    applyMatrixTo3D(greyMatrix());
+    // Inicializa el cubo con la matriz almacenada o, en su defecto, en gris
+    let initial = greyMatrix();
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.matrix3D);
+      if (raw) initial = JSON.parse(raw);
+    } catch {}
+    applyMatrixTo3D(initial);
 
     // Enlaces de botones
     next.addEventListener('click', () => api()?.nextMove?.());
@@ -90,13 +95,6 @@
       next.disabled = anim || curr >= total;
       pause.disabled = !anim;
     }, 100);
-
-    // Cargar desde Manual
-    document.getElementById('cargarManual3D')?.addEventListener('click', () => {
-      const raw = localStorage.getItem(STORAGE_KEYS.matrix3D);
-      if (!raw) return alert('No hay datos manuales guardados. Ve a "Agregar manualmente".');
-      try { applyMatrixTo3D(JSON.parse(raw)); } catch { alert('Error al cargar la matriz manual guardada.'); }
-    });
 
     // Limpiar colores -> gris
     document.getElementById('limpiarColores')?.addEventListener('click', () => {
@@ -134,4 +132,4 @@
   } else {
     iframe.addEventListener('load', tryBindWithRetries, { once: true });
   }
-})();
+  })();
