@@ -7,9 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!raw) return alert('No hay datos manuales guardados. Ve a "Agregar manualmente".');
     try { applyMatrixTo3D(JSON.parse(raw)); } catch { alert('Error al cargar la matriz manual guardada.'); }
 
-    const params = new URLSearchParams(location.search);
-    const solucion = params.get('solucion');
-    const secuenciaParams = params.get('secuencia');
+    const secuenciaParams = localStorage.getItem('solucion');
     let secuencia = [];
     let secuenciaVista = [];
     let indice = 0;
