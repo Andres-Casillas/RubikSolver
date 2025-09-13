@@ -1,4 +1,4 @@
-import { KEYS, getEmptyMatrix, clearAll } from './rubik-storage.js';
+import { KEYS, clearAll } from './rubik-storage.js';
 
 document.addEventListener('DOMContentLoaded', function () {
     let anteriorBloqueado = false;
@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const preantElem = document.getElementById('preant');
     const presigElem = document.getElementById('presig');
     const ayudaBtn = document.getElementById('ayudaBtn');
+    const accionesFinales = document.getElementById('accionesFinales');
+    const aviso = document.getElementById('aviso');
+    const btnNuevoCubo = document.getElementById('nuevoCubo');
 
     const iframe = document.getElementById('iframe3d');
     const api = () => iframe.contentWindow?.RubikCube;
@@ -87,6 +90,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    function mostrarFinal() {
+        accionesFinales.classList.add('mostrar');
+        aviso.classList.add('mostrar');
+    }
+
     btnSiguiente.addEventListener('click', () => {
         if (siguienteBloqueado) return;
         siguienteBloqueado = true;
@@ -95,9 +103,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (indice === -1) {
             indice = 0;
             actualizarVista();
+            if (secuenciaVista.length === 1) mostrarFinal();
         } else if (indice < secuenciaVista.length - 1) {
             indice++;
             actualizarVista();
+            if (indice === secuenciaVista.length - 1) mostrarFinal();
         }
     });
 
@@ -105,7 +115,14 @@ document.addEventListener('DOMContentLoaded', function () {
         mostrarModalAyuda(movimientoElem.textContent);
     });
 
+    btnNuevoCubo.addEventListener('click', () => {
+        clearAll({ apply3D: true });
+        window.location.href = 'menu.html';
+    });
 
+    if (secuenciaVista.length === 0) {
+        mostrarFinal();
+    }
 });
 
 function mostrarModalAyuda(rotacion) {

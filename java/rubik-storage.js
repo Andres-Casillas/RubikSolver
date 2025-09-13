@@ -3,6 +3,7 @@ export const KEYS = {
   manualMatrix: 'rubik.manualMatrix3D',
   cameraMatrix: 'rubik.cameraMatrix3D',
   manualProgress: 'rubik.manual.progress',   // si tu Manual guarda progreso, lo unificamos
+  manualWorking: 'rubik.manualWorking',
   resetEpoch: 'rubik.resetEpoch'             // bandera global de reset
 };
 
@@ -25,6 +26,7 @@ export function clearAll(opts = {}) {
   localStorage.removeItem(KEYS.manualMatrix);
   localStorage.removeItem(KEYS.cameraMatrix);
   localStorage.removeItem(KEYS.manualProgress);
+  sessionStorage.removeItem(KEYS.manualWorking);
   sessionStorage.removeItem(KEYS.manualMatrix);
   sessionStorage.removeItem(KEYS.cameraMatrix);
   const ts = Date.now();

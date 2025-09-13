@@ -179,7 +179,7 @@ function actualizarCara() {
 }
 
 document.getElementById('regresar').addEventListener('click', () => {
-  window.location.href = 'resolver.html';
+  window.location.href = 'menu.html';
 });
 
 // Inicializar

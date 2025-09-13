@@ -1,5 +1,5 @@
-import { rotarMatriz } from './utils.js';
-import { conexionPython } from './utils.js';
+import { rotarMatriz, conexionPython } from './utils.js';
+import { KEYS } from './rubik-storage.js';
 
 let video = document.getElementById("videoInput");
 let canvas = document.getElementById("canvasOutput");
@@ -23,6 +23,17 @@ let caraActual = 0;
 
 // NUEVO: marca si una cara ya fue guardada explícitamente por el usuario
 let caraGuardada = Array(6).fill(false);
+
+const notificacion = document.getElementById('notificacion');
+
+function mostrarNotificacion(msg, tipo = 'error') {
+  if (!notificacion) return;
+  notificacion.textContent = msg;
+  notificacion.className = `notification ${tipo} mostrar`;
+  setTimeout(() => {
+    notificacion.className = `notification ${tipo}`;
+  }, 3000);
+}
 
 function onOpenCvReady() {
   navigator.mediaDevices.getUserMedia({ video: true, audio: false })
@@ -203,24 +214,15 @@ function buildMatrix3DFromMatriz(m) {
   ];
 }
 
-// Sanea una cara: reemplaza 'N' por el color más frecuente de la cara
-function sanitizeFace(face3x3) {
-  const flat = face3x3.flat();
-  const counts = {};
-  for (const v of flat) { if (v !== 'N') counts[v] = (counts[v] || 0) + 1; }
-  // Si todo fue 'N', usa 'W' como backup neutro (se puede cambiar por el centro)
-  const mode = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0] || 'W';
-  return face3x3.map(row => row.map(v => v === 'N' ? mode : v));
-}
 
 // Aplica al 3D embebido; si no está lista la API, usa localStorage
 function actualizarModelo3D(matrix3D) {
   try {
     if (window && typeof window.applyMatrixTo3D === 'function') {
       window.applyMatrixTo3D(matrix3D);
-    } else {
-      localStorage.setItem('rubik.manualMatrix3D', JSON.stringify(matrix3D));
-    }
+    } 
+    localStorage.setItem(KEYS.cameraMatrix, JSON.stringify(matrix3D));
+    localStorage.setItem(KEYS.manualMatrix, JSON.stringify(matrix3D));
   } catch (e) {
     console.warn('No se pudo aplicar la matriz al 3D:', e);
   }
@@ -237,11 +239,11 @@ function logHuecos(matrix3D, tag='') {
 
 // Guardar la cara actual detectada y reflejarla en el 3D (nunca enviamos 'N')
 document.getElementById("guardarCara").addEventListener("click", () => {
-  let copia = colorGrid.map(fila => [...fila]);
-  // BLINDAJE: nunca 'N'
-  if (copia.flat().includes('N')) {
-    copia = sanitizeFace(copia);
+  if (colorGrid.flat().includes('N')) {
+    mostrarNotificacion('No se detectaron todos los colores.', 'error');
+    return;
   }
+  let copia = colorGrid.map(fila => [...fila]);
   matriz[caraActual] = copia;
 
   // NUEVO: marcar que esta cara quedó confirmada
@@ -250,20 +252,15 @@ document.getElementById("guardarCara").addEventListener("click", () => {
   const matrix3D = buildMatrix3DFromMatriz(matriz);
   logHuecos(matrix3D, '(post-guardarCara)');
   actualizarModelo3D(matrix3D);
+  mostrarNotificacion('Cara guardada', 'success');
 
   console.log(`📸 Cara ${caraActual} guardada al 3D:`, copia);
 });
 
 document.getElementById("siguiente").addEventListener("click", () => {
-  // NUEVO: solo sobreescribe si NO se guardó explícitamente antes
   if (!caraGuardada[caraActual]) {
-    let copia = colorGrid.map(fila => [...fila]);
-    if (copia.flat().includes('N')) {
-      copia = sanitizeFace(copia);
-    }
-    matriz[caraActual] = copia;
-  } else {
-    console.log(`➡️ Siguiente: cara ${caraActual} ya estaba guardada; no se sobreescribe.`);
+    mostrarNotificacion('Debes guardar la cara antes de continuar.', 'error');
+    return;
   }
 
   if (caraActual < 5) {
@@ -282,9 +279,11 @@ document.getElementById("siguiente").addEventListener("click", () => {
 
   const existeN = matriz.some(bloque => bloque.some(fila => fila.includes('N')));
   if (!existeN) {
-    alert("Cubo completo.");
-    document.getElementById('guardar').classList.remove('deshabilitado');
-    document.getElementById('guardar').addEventListener('click', () => {
+    mostrarNotificacion('Cubo completo, carga la solución.', 'success');
+    const btnResolver = document.getElementById('guardar');
+    btnResolver.textContent = 'Cargar Solución';
+    btnResolver.classList.remove('deshabilitado');
+    btnResolver.addEventListener('click', () => {
       const cubo = [];
       cubo[0] = matriz[4];
       cubo[1] = matriz[0];
@@ -298,8 +297,11 @@ document.getElementById("siguiente").addEventListener("click", () => {
       cubo[2] = rotarMatriz(cubo[2], "antihorario");
       cubo[3] = rotarMatriz(cubo[3], "espejo");
 
-      conexionPython(cubo);
-    });
+        conexionPython(cubo).then(seq => {
+          try { localStorage.setItem('solucion', JSON.stringify(seq)); } catch {}
+          window.location.href = 'solucion.html';
+      });
+    }, { once: true });
   }
 });
 

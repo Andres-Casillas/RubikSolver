@@ -133,6 +133,31 @@ body {
   background-color: #00a080;
 }
 
+.boton.secundario {
+  background-color: #555;
+}
+
+.boton.secundario:hover {
+  background-color: #444;
+}
+
+.notification {
+  background: #00b894;
+  color: #fff;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.notification.mostrar {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 
 
 .modal {

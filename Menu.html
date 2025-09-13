@@ -1,42 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cube Solver - Menú</title>
-  <link rel="stylesheet" href="css/Menu.css" />
-  <link rel="stylesheet" href="css/Nav.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seleccionar método</title>
+    <link rel="stylesheet" href="css/Menu.css" />
+    <link rel="stylesheet" href="css/Nav.css" />
 </head>
 <body>
-  <div id="navbar"></div>
-  <h1>Selecciona un cubo para resolver</h1>
-
-  <div class="menu" id="menu">
-    <!-- Las tarjetas se insertan con JavaScript -->
-  </div>
-
-  <script>
-    const cubos = [
-      {
-        nombre: "Cubo 3x3",
-        tipo: "3x3",
-        imagen: "imagenes/3x3.png"
-      }
-    ];
-
-    const menu = document.getElementById("menu");
-
-    cubos.forEach((cubo) => {
-      const card = document.createElement("a");
-      card.className = "card";
-      card.href = `resolver.html?tipo=${cubo.tipo}`;
-      card.innerHTML = `
-        <img src="${cubo.imagen}" alt="${cubo.nombre}" />
-        <span>${cubo.nombre}</span>
-      `;
-      menu.appendChild(card);
-    });
-  </script>
-  <script type="module" src="java/Nav.js"></script>
+    <div id="navbar"></div>
+    <h1>Bienvenido a la solución del cubo</h1>
+    <p class="intro">Ingresa tu cubo desordenado manualmente o usando la cámara de tu dispositivo.</p>
+    <div class="opciones">
+    <a class="opcion" href="camara.html">Cámara</a>
+    <a class="opcion" href="Manual.html">Manual</a>
+    </div>
+    <script type="module" src="java/Nav.js"></script>
 </body>
 </html>

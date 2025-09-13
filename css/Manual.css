@@ -101,7 +101,13 @@ body {
   height: 50px;
   border-radius: 50%;
   cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease;
 }
+.color:hover {
+  transform: scale(1.1);
+}
+
 
 .seleccion {
   border: 3px solid #ccc;
@@ -126,10 +132,13 @@ body {
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .btn-nav:hover {
   background-color: #1674d8;
+    transform: translateY(-2px);
 }
 
 #siguiente {
