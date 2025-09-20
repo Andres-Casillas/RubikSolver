@@ -1,31 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat con Backend</title>
-  <link rel="stylesheet" href="css/chat.css">
+  <link rel="stylesheet" href="css/chat.css" />
 </head>
+
 <body>
-  <!-- Botón flotante para abrir chat -->
-  <button aria-label="Abrir chat" class="chat-toggle" id="chatToggle">
-    💬
+  <button aria-label="Abrir chat" class="chat-toggle" id="chatToggle" type="button" aria-expanded="false">
+    <span class="chat-toggle__icon" aria-hidden="true">💬</span>
+    <span class="chat-toggle__label">Habla con Rubik</span>
   </button>
 
-  <!-- Panel del chat -->
-  <aside class="chat-panel" id="chatPanel" aria-hidden="true" role="dialog" aria-label="Chat">
+  <aside class="chat-panel" id="chatPanel" aria-hidden="true" role="dialog" aria-label="Chat con el asistente virtual"
+    data-endpoint="http://127.0.0.1:5000/chat">
     <header class="chat-header">
-      <h2>Chat</h2>
-      <button id="chatClose" aria-label="Cerrar chat">&times;</button>
+      <div class="chat-header__info">
+        <span class="chat-avatar" aria-hidden="true">
+          <img src="imagenes/cubito.png" alt="Avatar del asistente Rubik" loading="lazy" />
+        </span>
+        <div class="chat-header__text">
+          <h2>Asistente Rubik</h2>
+          <p class="chat-status">
+            <span class="status-indicator" aria-hidden="true"></span>
+            Estamos en línea
+          </p>
+        </div>
+      </div>
+      <div class="chat-header__actions">
+        <button id="chatReset" class="chat-reset" type="button" aria-label="Borrar historial y empezar nuevo chat">
+          &#8635;
+        </button>
+        <button id="chatClose" class="chat-close" type="button" aria-label="Cerrar chat">
+          &times;
+        </button>
+      </div>
     </header>
-    <div class="chat-messages"></div>
+    <div class="chat-messages" role="log" aria-live="polite"></div>
     <footer class="chat-input">
-      <input id="chatInput" type="text" placeholder="Escribe un mensaje..." aria-label="Escribir mensaje">
-      <button id="chatSend">➤</button>
+      <input id="chatInput" type="text" placeholder="Escribe un mensaje..." aria-label="Escribir mensaje"
+        autocomplete="off" />
+      <button id="chatSend" type="button" class="chat-send">
+        <span class="visually-hidden">Enviar mensaje</span>
+        ➤
+      </button>
     </footer>
   </aside>
 
   <script src="java/logicachat.js"></script>
 </body>
-</html>
 
+</html>
