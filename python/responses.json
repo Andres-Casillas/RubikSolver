@@ -1,0 +1,614 @@
+{
+  "resolver": {
+    "text": "Selecciona la parte del cubo 3x3 que quieres practicar.",
+    "aliases": [
+      "resolver",
+      "resolver cubo",
+      "ayuda con el cubo",
+      "resolver un cubo"
+    ],
+    "choices": [
+      {
+        "label": "Metodo basico capa por capa",
+        "value": "Metodo basico",
+        "query": "metodo basico",
+        "intent": "basico"
+      },
+      {
+        "label": "Metodo CFOP completo",
+        "value": "Quiero aprender CFOP",
+        "query": "cfop",
+        "intent": "cfop"
+      },
+      {
+        "label": "Notacion de movimientos",
+        "value": "Notacion",
+        "query": "notacion",
+        "intent": "notacion"
+      },
+      {
+        "label": "Algoritmos por etapa",
+        "value": "Ver algoritmos",
+        "query": "algoritmos",
+        "intent": "algoritmos"
+      },
+      {
+        "label": "OLL (orientar ultima capa)",
+        "value": "OLL",
+        "query": "oll",
+        "intent": "oll"
+      },
+      {
+        "label": "PLL (permutar ultima capa)",
+        "value": "PLL",
+        "query": "pll",
+        "intent": "pll"
+      }
+    ],
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/cruz1.png",
+        "alt": "Cruz blanca completada"
+      }
+    ]
+  },
+  "basico": {
+    "text": "Metodo principiante (capa por capa) para completar el cubo 3x3.",
+    "aliases": [
+      "metodo basico",
+      "principiante",
+      "capa por capa",
+      "layer by layer",
+      "basico"
+    ],
+    "html": "<p>Trabaja por capas: primero la cruz blanca, luego las esquinas, completa la segunda capa y finalmente orienta y permuta la ultima.</p>",
+    "steps": [
+      "Construye la cruz blanca alineando cada arista con su centro correspondiente.",
+      "Inserta las esquinas blancas usando patrones como R' D' R D.",
+      "Empareja aristas de la segunda capa con U R U' R' U' F' U F y su espejo.",
+      "Orienta la capa superior con F R U R' U' F' y termina con permutaciones sencillas como R U R' U R U2 R'."
+    ],
+    "choices": [
+      {
+        "label": "Ver notacion basica",
+        "value": "Notacion basica",
+        "query": "notacion",
+        "intent": "notacion"
+      },
+      {
+        "label": "Practicar la cruz",
+        "value": "Practicar cruz",
+        "query": "cruz cfop",
+        "intent": "cfop_cruz"
+      },
+      {
+        "label": "Aprender F2L intuitivo",
+        "value": "F2L intuitivo",
+        "query": "f2l",
+        "intent": "cfop_f2l"
+      },
+      {
+        "label": "Pasar a OLL",
+        "value": "Quiero OLL",
+        "query": "oll",
+        "intent": "oll"
+      }
+    ],
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/cruz2.png",
+        "alt": "Cruz blanca paso a paso"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/f2l1.png",
+        "alt": "Pareja F2L lista para insertar"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/oll1.png",
+        "alt": "Orientacion de la ultima capa"
+      }
+    ],
+    "link": {
+      "label": "Guia de metodo principiante",
+      "url": "https://www.speedsolving.com/wiki/index.php/Layer-by-Layer_Method"
+    }
+  },
+  "algoritmos": {
+    "text": "Elige la etapa del cubo para ver algoritmos recomendados.",
+    "aliases": [
+      "algoritmos",
+      "quiero algoritmos",
+      "algoritmos cubo"
+    ],
+    "choices": [
+      {
+        "label": "Primera capa",
+        "value": "Algoritmos primera capa",
+        "query": "algoritmos primera capa",
+        "intent": "alg1"
+      },
+      {
+        "label": "Ultima capa",
+        "value": "Algoritmos ultima capa",
+        "query": "algoritmos ultima capa",
+        "intent": "alg2"
+      },
+      {
+        "label": "OLL",
+        "value": "Ver OLL",
+        "query": "oll",
+        "intent": "oll"
+      },
+      {
+        "label": "PLL",
+        "value": "Ver PLL",
+        "query": "pll",
+        "intent": "pll"
+      }
+    ],
+    "suggestions": [
+      "Muestrame OLL faciles",
+      "Quiero permutaciones PLL",
+      "Recuerdame la insercion de esquinas"
+    ]
+  },
+  "alg1": {
+    "text": "Algoritmos utiles para completar la primera capa.",
+    "aliases": [
+      "primera capa",
+      "alg1",
+      "algoritmos primera capa"
+    ],
+    "steps": [
+      "Insercion derecha: R U R'.",
+      "Insercion izquierda: L' U' L.",
+      "Colocar esquina mal orientada: R' D' R D.",
+      "Ajustar arista con su centro: F' U' F."
+    ],
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/cruz1.png",
+        "alt": "Aristas alineadas para la cruz"
+      }
+    ],
+    "choices": [
+      {
+        "label": "Practicar la cruz",
+        "value": "Practicar cruz",
+        "query": "cruz cfop",
+        "intent": "cfop_cruz"
+      },
+      {
+        "label": "Pasar a F2L",
+        "value": "F2L",
+        "query": "f2l",
+        "intent": "cfop_f2l"
+      }
+    ]
+  },
+  "alg2": {
+    "text": "Algoritmos clave para dominar la ultima capa (OLL y PLL).",
+    "aliases": [
+      "ultima capa",
+      "alg2",
+      "algoritmos ultima capa"
+    ],
+    "html": "<p>Empieza orientando las aristas con <code>F R U R' U' F'</code> y practica permutaciones como <code>R U R' U R U2 R'</code> (T-perm). Repite los casos de la wiki hasta identificarlos al instante.</p>",
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/oll2.png",
+        "alt": "Caso comun de OLL"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/pll1.png",
+        "alt": "Permutacion PLL"
+      }
+    ],
+    "choices": [
+      {
+        "label": "Ver lista OLL",
+        "value": "Quiero OLL",
+        "query": "oll",
+        "intent": "oll"
+      },
+      {
+        "label": "Ver lista PLL",
+        "value": "Quiero PLL",
+        "query": "pll",
+        "intent": "pll"
+      }
+    ]
+  },
+  "avanzado": {
+    "text": "El metodo avanzado mas usado para 3x3 es CFOP.",
+    "aliases": [
+      "metodo avanzado",
+      "avanzado",
+      "quiero avanzado",
+      "cfop avanzado"
+    ],
+    "html": "<ul><li><strong>Cruz</strong>: planifica la base durante la inspeccion.</li><li><strong>F2L</strong>: empareja esquina y arista para insertar en un solo paso.</li><li><strong>OLL</strong>: orienta todas las piezas de la capa superior.</li><li><strong>PLL</strong>: permuta las piezas restantes para cerrar el cubo.</li></ul>",
+    "choices": [
+      {
+        "label": "Detalle de CFOP",
+        "value": "CFOP",
+        "query": "cfop",
+        "intent": "cfop"
+      },
+      {
+        "label": "Cruz eficiente",
+        "value": "Cruz eficiente",
+        "query": "cruz cfop",
+        "intent": "cfop_cruz"
+      },
+      {
+        "label": "F2L avanzados",
+        "value": "F2L avanzados",
+        "query": "f2l avanzado",
+        "intent": "cfop_f2l"
+      },
+      {
+        "label": "Listas OLL",
+        "value": "Quiero listas OLL",
+        "query": "oll",
+        "intent": "oll"
+      },
+      {
+        "label": "Listas PLL",
+        "value": "Quiero listas PLL",
+        "query": "pll",
+        "intent": "pll"
+      }
+    ],
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/f2l2.png",
+        "alt": "Insercion F2L"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/oll/3.png",
+        "alt": "Patron OLL"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/pll2.png",
+        "alt": "Ciclo PLL"
+      }
+    ],
+    "link": {
+      "label": "Guia CFOP en la wiki",
+      "url": "https://www.speedsolving.com/wiki/index.php/CFOP_method"
+    }
+  },
+  "cfop": {
+    "text": "CFOP (Cross, F2L, OLL, PLL) divide el cubo en cuatro fases optimizadas.",
+    "aliases": [
+      "cfop",
+      "metodo cfop",
+      "cross f2l oll pll"
+    ],
+    "steps": [
+      "Planifica la cruz inferior durante la inspeccion.",
+      "Resuelve dos capas con pares F2L buscando inserciones en menos de 8 movimientos.",
+      "Orienta la ultima capa usando los 57 casos de OLL o una version reducida.",
+      "Permuta las piezas restantes con los 21 casos de PLL."
+    ],
+    "choices": [
+      {
+        "label": "Paso 1: Cruz",
+        "value": "Ver cruz CFOP",
+        "query": "cruz cfop",
+        "intent": "cfop_cruz"
+      },
+      {
+        "label": "Paso 2: F2L",
+        "value": "Ver F2L",
+        "query": "f2l",
+        "intent": "cfop_f2l"
+      },
+      {
+        "label": "Paso 3: OLL",
+        "value": "Ver OLL",
+        "query": "oll",
+        "intent": "oll"
+      },
+      {
+        "label": "Paso 4: PLL",
+        "value": "Ver PLL",
+        "query": "pll",
+        "intent": "pll"
+      }
+    ],
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/cruz1.png",
+        "alt": "Cruces planeadas"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/f2l3.png",
+        "alt": "Caso F2L"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/oll/4.png",
+        "alt": "Caso OLL"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/pll/3.png",
+        "alt": "Caso PLL"
+      }
+    ],
+    "link": {
+      "label": "Referencia completa en la wiki",
+      "url": "https://www.speedsolving.com/wiki/index.php/CFOP_method"
+    }
+  },
+  "cfop_cruz": {
+    "text": "Cruz eficiente: alinea las cuatro aristas de la base minimizando giros.",
+    "aliases": [
+      "cruz",
+      "cross",
+      "cfop cruz",
+      "cruz cfop"
+    ],
+    "steps": [
+      "Identifica las aristas de la base y planifica la cruz durante la inspeccion.",
+      "Resuelve primero las piezas ya alineadas para conservar orientacion.",
+      "Ajusta cada arista con la tecnica de girar capa inferior, alinear y devolver.",
+      "Recuerda terminar con la capa inferior correctamente alineada con los centros laterales."
+    ],
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/cruz1.png",
+        "alt": "Aristas listas para formar la cruz"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/cruz2.png",
+        "alt": "Cruz terminada con centros alineados"
+      }
+    ],
+    "choices": [
+      {
+        "label": "Seguir con F2L",
+        "value": "Vamos a F2L",
+        "query": "f2l",
+        "intent": "cfop_f2l"
+      }
+    ],
+    "suggestions": [
+      "Como planifico la cruz en 15 segundos?",
+      "Dame ejercicios para practicar la cruz"
+    ]
+  },
+  "cfop_f2l": {
+    "text": "F2L combina esquina y arista para completar dos capas a la vez.",
+    "aliases": [
+      "f2l",
+      "cfop f2l",
+      "pares f2l"
+    ],
+    "html": "<p>Identifica la esquina y su arista asociada. Usa patrones como <code>U R U' R'</code> o <code>U' L' U L</code> para juntarlos, y luego inserta desde el frente con <code>F' U' F</code> o sus variantes. Practica casos desde diferentes orientaciones.</p>",
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/f2l1.png",
+        "alt": "Caso basico F2L"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/f2l2.png",
+        "alt": "Insercion desde la izquierda"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/f2l3.png",
+        "alt": "Pareja lista en la parte superior"
+      }
+    ],
+    "choices": [
+      {
+        "label": "Pasar a OLL",
+        "value": "Voy a OLL",
+        "query": "oll",
+        "intent": "oll"
+      }
+    ],
+    "suggestions": [
+      "Muestrame un caso dificil de F2L",
+      "Como reconocer parejas F2L"
+    ]
+  },
+  "oll": {
+    "text": "OLL orienta todas las piezas de la ultima capa en un solo paso.",
+    "aliases": [
+      "oll",
+      "orientacion ultima capa",
+      "orientar ultima capa"
+    ],
+    "html": "<p>Empieza con los 2-look OLL (dos pasos) y luego avanza a los 57 casos completos. Identifica el patron de amarillas en la parte superior y aplica el algoritmo correspondiente.</p>",
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/oll/1.png",
+        "alt": "Caso OLL 1"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/oll/5.png",
+        "alt": "Caso OLL 5"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/oll/9.png",
+        "alt": "Caso OLL 9"
+      }
+    ],
+    "choices": [
+      {
+        "label": "Quiero casos basicos",
+        "value": "Casos basicos de OLL",
+        "query": "oll basico",
+        "intent": "cfop_oll"
+      },
+      {
+        "label": "Ver todas las PLL",
+        "value": "Pasar a PLL",
+        "query": "pll",
+        "intent": "pll"
+      }
+    ],
+    "link": {
+      "label": "Lista completa de OLL",
+      "url": "https://www.speedsolving.com/wiki/index.php/OLL"
+    }
+  },
+  "cfop_oll": {
+    "text": "Resumen de los casos OLL mas comunes en CFOP.",
+    "aliases": [
+      "oll basico",
+      "casos oll",
+      "cfop oll"
+    ],
+    "steps": [
+      "Aprende primero los 2-look: trata aristas y esquinas por separado.",
+      "Divide los casos por patrones (linea, L, punto).",
+      "Reconoce cases espejo para reutilizar algoritmos.",
+      "Usa triggers como <code>r U R' U' r'</code> o <code>F R U R' U' F'</code>."
+    ],
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/oll2.png",
+        "alt": "Linea en OLL"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/oll/6.png",
+        "alt": "Caso OLL en forma de L"
+      }
+    ],
+    "choices": [
+      {
+        "label": "Pasar a PLL",
+        "value": "Vamos a PLL",
+        "query": "pll",
+        "intent": "pll"
+      }
+    ]
+  },
+  "pll": {
+    "text": "PLL permuta piezas de la ultima capa; son 21 algoritmos en total.",
+    "aliases": [
+      "pll",
+      "permutacion ultima capa",
+      "permutaciones pll"
+    ],
+    "html": "<p>Empieza con las permutaciones A, T, U y J que cubren muchos casos cotidianos. Usa los esquemas de la wiki para identificar ciclos de esquinas y aristas rapidamente.</p>",
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/pll/1.png",
+        "alt": "Caso PLL tipo A"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/pll/3.png",
+        "alt": "Caso PLL tipo U"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/pll/6.png",
+        "alt": "Caso PLL tipo Z"
+      }
+    ],
+    "choices": [
+      {
+        "label": "Ver casos de OLL",
+        "value": "Volver a OLL",
+        "query": "oll",
+        "intent": "oll"
+      }
+    ],
+    "link": {
+      "label": "Lista completa de PLL",
+      "url": "https://www.speedsolving.com/wiki/index.php/PLL"
+    }
+  },
+  "notacion": {
+    "text": "Notacion basica para describir giros del cubo.",
+    "aliases": [
+      "notacion",
+      "notacion de movimientos",
+      "letras del cubo"
+    ],
+    "html": "<p>Las letras indican la cara a girar: R (derecha), L (izquierda), U (arriba), D (abajo), F (frente) y B (parte trasera). Un apostrofe indica giro antihorario y el numero 2 significa doble giro.</p>",
+    "media": [
+      {
+        "type": "image",
+        "url": "imagenes/wiki/R.png",
+        "alt": "Movimiento R"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/L.png",
+        "alt": "Movimiento L"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/U.png",
+        "alt": "Movimiento U"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/F.png",
+        "alt": "Movimiento F"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/B.png",
+        "alt": "Movimiento B"
+      },
+      {
+        "type": "image",
+        "url": "imagenes/wiki/M.png",
+        "alt": "Movimiento M"
+      }
+    ],
+    "choices": [
+      {
+        "label": "Practicar metodo basico",
+        "value": "Metodologia basica",
+        "query": "metodo basico",
+        "intent": "basico"
+      },
+      {
+        "label": "Ir a CFOP",
+        "value": "Quiero CFOP",
+        "query": "cfop",
+        "intent": "cfop"
+      }
+    ]
+  },
+  "fallback": {
+    "text": "No entendi tu pregunta, prueba con una de estas opciones.",
+    "suggestions": [
+      "Cuales son los pasos del metodo basico?",
+      "Explicame CFOP",
+      "Dame algoritmos de la ultima capa"
+    ]
+  }
+}

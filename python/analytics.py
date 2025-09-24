@@ -2,17 +2,61 @@
 """Servidor Flask para el asistente del cubo de Rubik."""
 from __future__ import annotations
 
+import json
 import logging
+import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from analytics import AnalyticsTracker
 from cube import CuboRubik, movimientos, simplificar
 from response_repository import ResponseRepository
 
+
+class AnalyticsTracker:
+    """Tracker para registrar eventos de analíticas en formato JSONL."""
+    
+    def __init__(self, log_file: Path):
+        self.log_file = Path(log_file)
+        self.log_file.parent.mkdir(exist_ok=True)
+    
+    def _write_event(self, event_data: Dict[str, Any]) -> None:
+        """Escribe un evento al archivo JSONL."""
+        event_data["timestamp"] = time.time()
+        try:
+            with open(self.log_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(event_data, ensure_ascii=False) + "\n")
+        except Exception as e:
+            print(f"Error escribiendo analíticas: {e}")
+    
+    def track_invalid(self, reason: str) -> None:
+        """Registra una petición inválida."""
+        self._write_event({
+            "event": "invalid",
+            "reason": reason
+        })
+    
+    def track_interaction(self, user_input: str, predicted_intent: Optional[str], 
+                         response_intent: str, fallback_used: bool, metadata: Dict[str, Any]) -> None:
+        """Registra una interacción exitosa del chat."""
+        self._write_event({
+            "event": "interaction",
+            "user_input": user_input,
+            "predicted_intent": predicted_intent,
+            "response_intent": response_intent,
+            "fallback": fallback_used,
+            "meta": metadata
+        })
+    
+    def track_error(self, user_input: str, error: str) -> None:
+        """Registra un error durante el procesamiento."""
+        self._write_event({
+            "event": "error",
+            "user_input": user_input,
+            "error": error
+        })
 
 try:
     import joblib
@@ -20,10 +64,7 @@ except ImportError as exc:  # pragma: no cover - joblib es obligatorio en produc
     raise RuntimeError("Se requiere joblib para cargar el modelo del chatbot") from exc
 
 app = Flask(__name__)
-# Configurar CORS para permitir conexiones desde el frontend
-CORS(app, origins=['http://127.0.0.1:5501', 'http://localhost:5501'], 
-     methods=['GET', 'POST', 'OPTIONS'],
-     allow_headers=['Content-Type', 'Authorization'])
+CORS(app)
 
 # Rutas a los artefactos del modelo del chatbot
 _BASE_DIR = Path(__file__).resolve().parent
@@ -87,15 +128,6 @@ def _resolve_response(user_input: str, hint_intent: Optional[str]) -> Dict[str, 
             "predicted": alias_payload.get("intent"),
         }
 
-    if not _modelo_disponible():
-        _LOGGER.info("Modelo no disponible, usando fallback")
-        payload = _response_repository.fallback()
-        return {
-            "payload": payload,
-            "matched_by": "fallback",
-            "predicted": None,
-        }
-
     vector = _vectorizer.transform([user_input])  # type: ignore[union-attr]
     predicted_intent = _clf.predict(vector)[0]  # type: ignore[union-attr]
     payload = _response_repository.get(predicted_intent)
@@ -115,6 +147,14 @@ def _resolve_response(user_input: str, hint_intent: Optional[str]) -> Dict[str, 
 
 @app.route("/chat", methods=["POST"])
 def chat() -> Any:
+    if not _modelo_disponible():
+        _LOGGER.error("Modelo no disponible para la solicitud")
+        _analytics.track_invalid(reason="model_unavailable")
+        return (
+            jsonify({"error": {"message": "El modelo del chatbot no esta disponible en el servidor."}}),
+            503,
+        )
+
     payload = request.get_json(silent=True) or {}
     user_input = str(payload.get("message", "")).strip()
 
