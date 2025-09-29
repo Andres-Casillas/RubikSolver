@@ -431,7 +431,7 @@ function normalizeUserPayload(raw) {
       console.error(error);
       addMessage(
         "bot",
-        "Oops... No fue posible conectar con el asistente. Intenta de nuevo en unos segundos."
+        "Ups... No fue posible conectar con el asistente. Intenta de nuevo en unos segundos."
       );
     }
   }
