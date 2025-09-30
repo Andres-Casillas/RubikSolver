@@ -112,26 +112,33 @@ function guardarCara() {
 
   // Si ya no hay 'N', habilitar Guardar (flujo existente)
   const incompletas = matriz.some(bloque => bloque.some(fila => fila.includes('N')));
+  const btnGuardar = document.getElementById('guardar');
   if (!incompletas) {
-    const btnGuardar = document.getElementById('guardar');
     btnGuardar.classList.remove('deshabilitado');
-    btnGuardar.addEventListener('click', () => {
-      const cubo = [];
-      cubo[0] = matriz[4];
-      cubo[1] = matriz[0];
-      cubo[2] = matriz[5];
-      cubo[3] = matriz[2];
-      cubo[4] = matriz[3];
-      cubo[5] = matriz[1];
-
-      cubo[0] = rotarMatriz(cubo[0], 'horario');
-      cubo[2] = rotarMatriz(cubo[2], 'antihorario');
-      cubo[3] = rotarMatriz(cubo[3], 'espejo');
-
-      conexionPython(cubo);
-    }, { once: true });
+    btnGuardar.disabled = false;
+  } else {
+    btnGuardar.classList.add('deshabilitado');
+    btnGuardar.disabled = true;
   }
 }
+
+const btnGuardar = document.getElementById('guardar');
+btnGuardar.addEventListener('click', () => {
+  if (btnGuardar.classList.contains('deshabilitado')) return;
+  const cubo = [];
+  cubo[0] = matriz[4];
+  cubo[1] = matriz[0];
+  cubo[2] = matriz[5];
+  cubo[3] = matriz[2];
+  cubo[4] = matriz[3];
+  cubo[5] = matriz[1];
+
+  cubo[0] = rotarMatriz(cubo[0], 'horario');
+  cubo[2] = rotarMatriz(cubo[2], 'antihorario');
+  cubo[3] = rotarMatriz(cubo[3], 'espejo');
+
+  conexionPython(cubo);
+});
 
 function cargarCara(index) {
   actualizarCara();
