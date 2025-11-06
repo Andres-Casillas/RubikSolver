@@ -81,6 +81,7 @@ function reiniciarCubo() {
   localStorage.removeItem(STORAGE_KEYS.matrix3D);
 
   actualizarCara();
+  persistMatrix3D(); // Forzar actualización del 3D
 }
 
 document.querySelectorAll('.casilla').forEach(casilla => {
